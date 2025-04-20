@@ -6,12 +6,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 
 class User(UserMixin, db.Model):
-    id = db.column(db.Integer, primary_key=True)
-    username = db.column(db.String(20), unique=True, nullable=False)
-    email = db.column(db.String(40), unique=True, nullable=False)
-    password_hash = db.column(db.String(40), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(40), unique=True, nullable=False)
+    firstname = db.Column(db.String(20), nullable=False)
+    lastname = db.Column(db.String(20), nullable=False)  
+    password_hash = db.Column(db.String(40), nullable=False)
     accounts = db.relationship("Account", backref="owner", lazy="dynamic")
-    joined_at = db.column(db.DateTime(), default = datetime.utcnow())
+    joined_at = db.Column(db.DateTime(), default = datetime.utcnow())
 
     def set_password(self,password):
         self.password_hash = generate_password_hash(password)
@@ -23,22 +24,22 @@ class User(UserMixin, db.Model):
         return f"{ self.username }"
     
 class Account(db.Model):
-    id = db.column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     balance = db.Column(db.Numeric(precision=10, scale=2), nullable=False)
-    type = db.column(db.String(20), nullable=False)
-    user_id = db.column(db.ForeignKey("user.id"), nullable=False)
+    type = db.Column(db.String(20), nullable=False)
+    user_id = db.Column(db.ForeignKey("user.id"), nullable=False)
     transactions = db.relationship("Transaction", backref="account", lazy="dynamic")
-    created_at = db.column(db.DateTime(), default = datetime.utcnow())
+    created_at = db.Column(db.DateTime(), default = datetime.utcnow())
 
 class Transaction(db.Model):
-    id = db.column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     amount = db.Column(db.Numeric(precision=10, scale=2), nullable=False)
-    type = db.column(db.String(20), nullable=False)
-    description = db.column(db.String(120), unique=True, nullable=False)
-    account_id = db.column(db.ForeignKey("account.id"), nullable=False)
-    date = db.column(db.DateTime(), default = datetime.utcnow())
+    type = db.Column(db.String(20), nullable=False)
+    description = db.Column(db.String(120), unique=True, nullable=False)
+    account_id = db.Column(db.ForeignKey("account.id"), nullable=False)
+    date = db.Column(db.DateTime(), default = datetime.utcnow())
 
 
 
-with app.app_context(app):
+with app.app_context():
     db.create_all()
