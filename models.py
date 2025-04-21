@@ -21,12 +21,12 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
     
     def __repr__(self):
-        return f"{ self.username }"
+        return f"{ self.firstname } { self.lastname }"
     
 class Account(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     balance = db.Column(db.Numeric(precision=10, scale=2), nullable=False)
-    type = db.Column(db.String(20), nullable=False)
+    number = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.ForeignKey("user.id"), nullable=False)
     transactions = db.relationship("Transaction", backref="account", lazy="dynamic")
     created_at = db.Column(db.DateTime(), default = datetime.utcnow())

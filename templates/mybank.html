@@ -1,11 +1,24 @@
 <html>
     {% extends "base.html" %}
-    {% block content%}
+    {% block content %}
     <head>
         <title>Welcome to My Bank</title>
     </head>
     <body>
         <h1>My Bank main page</h1>
+        {% if accounts %}
+        <h2>Your bank accounts</h2>
+          {% for account in accounts %}
+          <ul>
+            <li><a href="{{url_for('account', id=account.id)}}">Account {{ account.number }}</a></li>
+          </ul>
+          {% endfor %}
+        {% else %}
+          <form method="POST">
+            {{ form.hidden_tag() }}
+            {{ form.submit() }}
+          </form>
+        {% endif %}
     </body>
     {% endblock %}
 </html>

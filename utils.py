@@ -11,3 +11,8 @@ with app.app_context():
     users = User.query.all()
     for user in users:
         print(f"{user.firstname} {user.lastname} {user.email}")
+
+with app.app_context():
+    accounts = Account.query.all()
+    for account in accounts:
+        print(f"{account.number} {account.owner}")

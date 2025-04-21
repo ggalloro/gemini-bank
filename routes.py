@@ -1,7 +1,7 @@
 from app import app, db, login
 from flask import request, render_template, redirect, url_for, flash
 from models import User, Account, Transaction
-from forms import RegisterForm, LoginForm
+from forms import RegisterForm, LoginForm, CreateAccountForm
 from flask_login import login_required, login_user, logout_user, current_user
 
 
@@ -31,7 +31,7 @@ def register():
         db.session.add(user)
         try:
             db.session.commit()
-            flash("User registered correctly")
+            flash("User {user} registered correctly")
         except:
             db.session.rollback()
             flash("Problems in registration")
@@ -64,4 +64,27 @@ def mybank():
         user = current_user
     else:
         user = "anonymous"
-    return render_template("mybank.html", user = user)
+    accounts = User.query.get(current_user.id).accounts.all()
+    form = CreateAccountForm()
+    if form.validate_on_submit():
+        account = Account(balance=0,number=(160000+(Account.query.count())+1),user_id=current_user.id)
+        db.session.add(account)
+        try:
+            db.session.commit()
+            flash(f"Account {account.number} created succesfully")
+        except:
+            db.session.rollback()
+            flash(f"Problem in account creation")
+        return redirect(url_for('account', id=account.id))
+    return render_template("mybank.html", user = user, accounts = accounts, form = form)
+
+@app.route("/accounts/<int:id>", methods = ["GET","POST"])
+@login_required
+def account(id):
+    if current_user.is_authenticated:
+        user = current_user
+    else:
+        user = "anonymous"
+    account = Account.query.get(id)
+    transactions = Transaction.query.filter_by(account_id=id).all()
+    return render_template("account.html", user = user, account = account)

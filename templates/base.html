@@ -1,11 +1,11 @@
 <html>
     <a href="{{ url_for('mybank')}}">My Bank</a>  
-    --- <a href="{{ url_for('register') }}">Register</a>
+    
 
     {% if user and user != "anonymous" %}
-      <p>Logged in as {{ user.firstname }} {{ user.lastname }}</p> ---<a href="{{ url_for('logout') }}">Logout</a>
+      <p>Logged in as {{ user.firstname }} {{ user.lastname }} --- <a href="{{ url_for('logout') }}">Logout</a></p>
     {% else %}
-    --- <a href="{{ url_for('login') }}">Login</a>
+    <a href="{{ url_for('register') }}">Register</a> --- <a href="{{ url_for('login') }}">Login</a>
     {% endif %}
     
 
