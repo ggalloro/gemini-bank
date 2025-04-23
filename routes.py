@@ -1,7 +1,7 @@
 from app import app, db, login
 from flask import request, render_template, redirect, url_for, flash
 from models import User, Account, Transaction
-from forms import RegisterForm, LoginForm, CreateAccountForm
+from forms import RegisterForm, LoginForm, CreateAccountForm, TransactionForm
 from flask_login import login_required, login_user, logout_user, current_user
 
 
@@ -71,7 +71,7 @@ def mybank():
         db.session.add(account)
         try:
             db.session.commit()
-            flash(f"Account {account.number} created succesfully")
+            flash(f"Account {account.number} created successfully")
         except:
             db.session.rollback()
             flash(f"Problem in account creation")
@@ -87,4 +87,30 @@ def account(id):
         user = "anonymous"
     account = Account.query.get(id)
     transactions = Transaction.query.filter_by(account_id=id).all()
-    return render_template("account.html", user = user, account = account)
+    return render_template("account.html", user = user, account = account, transactions = transactions)
+
+@app.route("/<int:id>/transaction", methods = ["GET","POST"])
+@login_required
+def transaction(id):
+    if current_user.is_authenticated:
+        user = current_user
+    else:
+        user = "anonymous"
+    form = TransactionForm()
+    account = Account.query.get(id)
+    if form.validate_on_submit():
+        if form.type.data == "deposit":
+            transaction = Transaction(amount = form.amount.data, type = form.type.data, description = form.description.data, account_id=id)
+        else:
+            transaction = Transaction(amount = -(form.amount.data), type = form.type.data, description = form.description.data, account_id=id)
+        db.session.add(transaction)
+        account.balance += transaction.amount
+        try:
+            flash(f"{form.type.data } completed correctly")
+            db.session.commit()
+            return redirect(url_for('account', id=id))
+        except:
+            flash(f"{form.type.data } failed")
+            db.session.rollback()           
+            return redirect(url_for('transaction', id=id))
+    return render_template("transaction.html", user = user, account = account, form = form)

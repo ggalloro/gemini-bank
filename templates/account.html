@@ -6,5 +6,28 @@
     </head>
     <body>
         <h1>Account {{ account.number }}</h1>
+        <br>
+        <p> Current balance: {{account.balance}}</p>
+        <br>
+        <a href="{{ url_for('transaction', id= account.id)}}">New Transaction</a>
+        <br>
+        <h2>Account transactions</h2>
+        <table>
+            <thead>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Amount</th>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                <tr>
+                    <td>{{ transaction.date }}</td>
+                    <td>{{ transaction.description }}</td>
+                    <td>{{ transaction.amount }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>  
+        </table>
+    </body>
     {% endblock %}
 </html>

@@ -35,7 +35,7 @@ class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     amount = db.Column(db.Numeric(precision=10, scale=2), nullable=False)
     type = db.Column(db.String(20), nullable=False)
-    description = db.Column(db.String(120), unique=True, nullable=False)
+    description = db.Column(db.String(150), nullable=False)
     account_id = db.Column(db.ForeignKey("account.id"), nullable=False)
     date = db.Column(db.DateTime(), default = datetime.utcnow())
 

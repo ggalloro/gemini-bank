@@ -1,0 +1,21 @@
+<html>
+    {% extends "base.html" %}
+    {% block content %}
+    <head>
+        <title>New Transaciton</title>
+    </head>
+    <body>
+        <h1>New Transaciton</h1>
+          <form method="POST">
+            {{ form.hidden_tag() }}
+            {{ form.description.label }}
+            {{ form.description() }}
+            {{ form.amount.label }}
+            {{ form.amount() }}
+            {{ form.type.label }}
+            {{ form.type() }}
+            {{ form.submit() }}            
+          </form>
+    </body>
+    {% endblock %}
+</html>

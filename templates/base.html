@@ -16,6 +16,9 @@
         {% endfor %}
       {% endif %}
     {% endwith %}
+<head>
+  <link href="{{url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
 
     {% block content %}{% endblock %}
 

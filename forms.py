@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField, BooleanField
-from wtforms.validators import DataRequired, Email, EqualTo
+from wtforms import StringField, SubmitField, PasswordField, BooleanField, SelectField, TextAreaField, DecimalField
+from wtforms.validators import DataRequired, Email, EqualTo, NumberRange
 
 
 class RegisterForm(FlaskForm):
@@ -19,3 +19,9 @@ class LoginForm(FlaskForm):
 
 class CreateAccountForm(FlaskForm):
     submit = SubmitField("Create Account")
+
+class TransactionForm(FlaskForm):
+    description = TextAreaField("Description", validators=[DataRequired()])
+    amount = DecimalField("Amount", validators=[DataRequired(), NumberRange(min=0)], places=2, rounding=None)
+    type = SelectField("Transaction Type", validators=[DataRequired()], choices=[("deposit","Deposit"),("transfer","Transfer")])
+    submit = SubmitField("Make Transaction")
