@@ -7,7 +7,7 @@
     <body>
         <h1>Account {{ account.number }}</h1>
         <br>
-        <p> Current balance: {{account.balance}}</p>
+        <p> Current balance: {{account.balance}} EUR</p>
         <br>
         <a href="{{ url_for('transaction', id= account.id)}}">New Transaction</a>
         <br>
@@ -23,7 +23,7 @@
                 <tr>
                     <td>{{ transaction.date.strftime("%d/%m/%Y - %H:%M:%S") }}</td>
                     <td>{{ transaction.description }}</td>
-                    <td>{{ transaction.amount }}</td>
+                    <td>{{ transaction.amount }} EUR</td>
                 </tr>
                 {% endfor %}
             </tbody>  
