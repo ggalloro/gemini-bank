@@ -12,7 +12,7 @@ class User(UserMixin, db.Model):
     lastname = db.Column(db.String(20), nullable=False)  
     password_hash = db.Column(db.String(40), nullable=False)
     accounts = db.relationship("Account", backref="owner", lazy="dynamic")
-    joined_at = db.Column(db.DateTime(), default = datetime.utcnow())
+    joined_at = db.Column(db.DateTime(), default = datetime.now)
 
     def set_password(self,password):
         self.password_hash = generate_password_hash(password)
@@ -29,7 +29,7 @@ class Account(db.Model):
     number = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.ForeignKey("user.id"), nullable=False)
     transactions = db.relationship("Transaction", backref="account", lazy="dynamic")
-    created_at = db.Column(db.DateTime(), default = datetime.utcnow())
+    created_at = db.Column(db.DateTime(), default = datetime.now)
 
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -37,7 +37,7 @@ class Transaction(db.Model):
     type = db.Column(db.String(20), nullable=False)
     description = db.Column(db.String(150), nullable=False)
     account_id = db.Column(db.ForeignKey("account.id"), nullable=False)
-    date = db.Column(db.DateTime(), default = datetime.utcnow())
+    date = db.Column(db.DateTime(), default = datetime.now)
 
 
 

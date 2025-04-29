@@ -21,7 +21,7 @@
             <tbody>
                 {% for transaction in transactions %}
                 <tr>
-                    <td>{{ transaction.date }}</td>
+                    <td>{{ transaction.date.strftime("%d/%m/%Y - %H:%M:%S") }}</td>
                     <td>{{ transaction.description }}</td>
                     <td>{{ transaction.amount }}</td>
                 </tr>
