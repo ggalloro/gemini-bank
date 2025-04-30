@@ -31,7 +31,7 @@ def register():
         db.session.add(user)
         try:
             db.session.commit()
-            flash("User {user} registered correctly")
+            flash(f"User {user} registered correctly")
         except:
             db.session.rollback()
             flash("Problems in registration")
@@ -47,7 +47,7 @@ def login():
         if user and user.check_password(form.password.data):
             login_user(user, remember = form.remember.data)
             next_page = request.args.get("next")
-            return redirect(next_page) if next_page else redirect(url_for("index"))
+            return redirect(next_page) if next_page else redirect(url_for("mybank"))
         else:
             return redirect(url_for('login'))
     return render_template("login.html", form = form)

@@ -5,18 +5,18 @@
         <title>Account {{ account.number }}</title>
     </head>
     <body>
-        <h1>Account {{ account.number }}</h1>
+        <h1 class="pagetitle">Account {{ account.number }}</h1>
         <br>
         <p> Current balance: {{account.balance}} EUR</p>
         <br>
-        <a href="{{ url_for('transaction', id= account.id)}}">New Transaction</a>
+        <p class="center"><a id="transaction" href="{{ url_for('transaction', id= account.id)}}">New Transaction</a></p>
         <br>
         <h2>Account transactions</h2>
         <table>
             <thead>
-                <th>Date</th>
-                <th>Description</th>
-                <th>Amount</th>
+                <th class="datecolumn">Date</th>
+                <th class="desccolumn">Description</th>
+                <th class="amountcolumn">Amount</th>
             </thead>
             <tbody>
                 {% for transaction in transactions %}

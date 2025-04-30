@@ -5,15 +5,15 @@
         <title>New Transaction</title>
     </head>
     <body>
-        <h1>New Transaction</h1>
+        <h1 class="pagetitle">New Transaction</h1>
           <form method="POST">
             {{ form.hidden_tag() }}
             {{ form.description.label }}
-            {{ form.description() }}
+            {{ form.description() }}<br><br>
             {{ form.amount.label }}
-            {{ form.amount() }}
+            {{ form.amount() }}<br><br>
             {{ form.type.label }}
-            {{ form.type() }}
+            {{ form.type() }}<br><br>
             {{ form.submit() }}            
           </form>
     </body>
