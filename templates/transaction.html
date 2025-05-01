@@ -5,6 +5,9 @@
         <title>New Transaction</title>
     </head>
     <body>
+        <p>
+          <a href="{{url_for('account', id=account.id)}}">Back to Account</a>
+        </p>
         <h1 class="pagetitle">New Transaction</h1>
           <form method="POST">
             {{ form.hidden_tag() }}

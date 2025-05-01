@@ -3,7 +3,7 @@
     
 
     {% if user and user != "anonymous" %}
-      <p class="profile ">Logged in as {{ user.firstname }} {{ user.lastname }} --- <a href="{{ url_for('logout') }}">Logout</a></p>
+      <p class="profile ">Logged in as {{ user }} --- <a href="{{ url_for('logout') }}">Logout</a></p>
     {% else %}
       <p class="profile"><a href="{{ url_for('register') }}">Register</a> --- <a href="{{ url_for('login') }}">Login</a></p>
     {% endif %}

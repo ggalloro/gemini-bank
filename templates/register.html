@@ -5,19 +5,19 @@
         <title>Register new user</title>
     </head>
     <body>
-        <h1>Register new user</h1>
+        <h1 class="pagetitle">Register new user</h1>
         <form method="POST">
             {{ form.hidden_tag() }}
             {{ form.firstname.label }}
-            {{ form.firstname(size=30) }}<br><br>
+            {{ form.firstname(size=20) }}<br><br>
             {{ form.lastname.label }}
-            {{ form.lastname(size=30) }}<br><br>
+            {{ form.lastname(size=20) }}<br><br>
             {{ form.email.label }}
-            {{ form.email(size=30) }}<br><br>
+            {{ form.email(size=20) }}<br><br>
             {{ form.password1.label }}
-            {{ form.password1(size=30) }}<br><br>
+            {{ form.password1(size=20) }}<br><br>
             {{ form.password2.label }}
-            {{ form.password2(size=30) }}<br><br>
+            {{ form.password2(size=20) }}<br><br>
             {{ form.submit() }}
         </form>
     </body>
