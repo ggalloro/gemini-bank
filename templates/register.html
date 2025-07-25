@@ -1,25 +1,37 @@
-<html>
-    {% extends "base.html" %}
-    {% block content%}
-    <head>
-        <title>Register new user</title>
-    </head>
-    <body>
-        <h1 class="pagetitle">Register new user</h1>
-        <form method="POST">
-            {{ form.hidden_tag() }}
-            {{ form.firstname.label }}
-            {{ form.firstname(size=20) }}<br><br>
-            {{ form.lastname.label }}
-            {{ form.lastname(size=20) }}<br><br>
-            {{ form.email.label }}
-            {{ form.email(size=20) }}<br><br>
-            {{ form.password1.label }}
-            {{ form.password1(size=20) }}<br><br>
-            {{ form.password2.label }}
-            {{ form.password2(size=20) }}<br><br>
-            {{ form.submit() }}
-        </form>
-    </body>
-    {% endblock %}
-</html>
+{% extends "base.html" %}
+{% block content%}
+    <div class="flex items-center justify-center">
+        <div class="px-8 py-6 mt-4 text-left bg-white shadow-lg rounded-lg w-1/2">
+            <h3 class="text-2xl font-bold text-center text-primary">Create a new account</h3>
+            <form method="POST" action="{{ url_for('register') }}">
+                {{ form.hidden_tag() }}
+                <div class="mt-4">
+                    <div>
+                        {{ form.firstname.label(class="block text-primary") }}
+                        {{ form.firstname(class="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600") }}
+                    </div>
+                    <div class="mt-4">
+                        {{ form.lastname.label(class="block text-primary") }}
+                        {{ form.lastname(class="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600") }}
+                    </div>
+                    <div class="mt-4">
+                        {{ form.email.label(class="block text-primary") }}
+                        {{ form.email(class="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600") }}
+                    </div>
+                    <div class="mt-4">
+                        {{ form.password1.label(class="block text-primary") }}
+                        {{ form.password1(class="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600") }}
+                    </div>
+                    <div class="mt-4">
+                        {{ form.password2.label(class="block text-primary") }}
+                        {{ form.password2(class="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600") }}
+                    </div>
+                    <div class="flex items-baseline justify-between">
+                        {{ form.submit(class="px-6 py-2 mt-4 text-white bg-secondary rounded-lg hover:bg-yellow-600") }}
+                        <a href="{{ url_for('login') }}" class="text-sm text-blue-600 hover:underline">Already registered?</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

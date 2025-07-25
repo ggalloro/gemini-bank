@@ -1,8 +1,13 @@
-<html>
-    {% extends "base.html" %}
-    {% block content%}
-    <head>
-        <title>Welcome to My Bank</title>
-    </head>
-    {% endblock %}
-</html>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="text-center py-16">
+    <img src="{{ url_for('static', filename='img/hero.png') }}" alt="Gemini Bank Logo" class="mx-auto h-200 mb-8">
+    <h1 class="text-5xl font-bold text-primary">Welcome to Gemini Bank</h1>
+    <p class="text-xl text-gray-600 mt-4">Your trusted partner in finance.</p>
+    <div class="mt-8">
+        <a href="{{ url_for('register') }}" class="bg-secondary text-white font-bold py-3 px-6 rounded-lg hover:bg-yellow-600 mr-4">Sign Up</a>
+        <a href="{{ url_for('login') }}" class="bg-gray-300 text-primary font-bold py-3 px-6 rounded-lg hover:bg-gray-400">Login</a>
+    </div>
+</div>
+{% endblock %}
