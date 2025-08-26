@@ -11,7 +11,7 @@ The purpose of this application is to provide a simple and easy-to-use interface
 * **Simplicity:** The application is designed to be simple and intuitive to use.
 * **Security:** All passwords are encrypted and user data is stored securely.
 * **Reliability:** The application is built on a robust and reliable framework.
-* 
+
 ## Development
 
 * **Coding Standards** Code should follow the PEP 8 coding standard.
