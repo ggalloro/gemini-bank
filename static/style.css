@@ -1,59 +1,24 @@
+/* static/style.css */
 
-  table {
-    border-collapse: collapse;
-    width: 80%;
-  }
+.btn-outline-secondary {
+    color: #ffffff;
+    border-color: #ffffff;
+}
 
-  th, td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: left;
-  }
+.btn-outline-secondary:hover {
+    color: #000000;
+    background-color: #ffffff;
+}
 
-  th {
-    background-color: #f2f2f2;
-  }
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.05);
+}
 
-  tr:hover {
-    background-color: #f9f9f9;
-  }
-  .datecolumn {
-    width: 20%
-  }
+.list-group-item {
+    background-color: #1f1f1f;
+    border-color: #333333;
+}
 
-  .amountcolumn {
-    width: 20%
-  }
-
-  .profile {
-    text-align:right
-  }
-
-  * {
-    font-family: Helvetica
-  }
-
-  .pagetitle {
-    background-color: cornflowerblue;
-    color: white
-  }
-
-  #transaction {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: lightgray;
-    color: blue;
-    text-decoration: none;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-    transform: translateY(1px);
-    text-align:right
-  }
-
-  .right {
-    text-align:right
-  }
-
-  .center {
-    text-align:center
-  }
+.list-group-item-action:hover {
+    background-color: #333333;
+}

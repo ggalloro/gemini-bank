@@ -10,7 +10,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(40), unique=True, nullable=False)
     firstname = db.Column(db.String(20), nullable=False)
     lastname = db.Column(db.String(20), nullable=False)  
-    password_hash = db.Column(db.String(40), nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
     accounts = db.relationship("Account", backref="owner", lazy="dynamic")
     joined_at = db.Column(db.DateTime(), default = datetime.now)
 

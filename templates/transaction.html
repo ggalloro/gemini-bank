@@ -1,24 +1,21 @@
-<html>
-    {% extends "base.html" %}
-    {% block content %}
-    <head>
-        <title>New Transaction</title>
-    </head>
-    <body>
-        <p>
-          <a href="{{url_for('account', id=account.id)}}">Back to Account</a>
-        </p>
-        <h1 class="pagetitle">New Transaction</h1>
-          <form method="POST">
-            {{ form.hidden_tag() }}
-            {{ form.description.label }}
-            {{ form.description() }}<br><br>
-            {{ form.amount.label }}
-            {{ form.amount() }}<br><br>
-            {{ form.type.label }}
-            {{ form.type() }}<br><br>
-            {{ form.submit() }}            
-          </form>
-    </body>
-    {% endblock %}
-</html>
+{% extends "base.html" %}
+{% block content%}
+<a href="{{url_for('account', id=account.id)}}" class="btn btn-outline-secondary mb-4">Back to Account</a>
+<h1>New Transaction</h1>
+<form method="POST">
+  {{ form.hidden_tag() }}
+  <div class="mb-3">
+    {{ form.description.label(class="form-label") }}
+    {{ form.description(class="form-control") }}
+  </div>
+  <div class="mb-3">
+    {{ form.amount.label(class="form-label") }}
+    {{ form.amount(class="form-control") }}
+  </div>
+  <div class="mb-3">
+    {{ form.type.label(class="form-label") }}
+    {{ form.type(class="form-control") }}
+  </div>
+  {{ form.submit(class="btn btn-primary") }}
+</form>
+{% endblock %}

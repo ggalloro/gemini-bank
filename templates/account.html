@@ -1,33 +1,31 @@
-<html>
-    {% extends "base.html" %}
-    {% block content%}
-    <head>
-        <title>Account {{ account.number }}</title>
-    </head>
-    <body>
-        <h1 class="pagetitle">Account {{ account.number }}</h1>
-        <br>
-        <p> Current balance: {{account.balance}} EUR</p>
-        <br>
-        <p class="center"><a id="transaction" href="{{ url_for('transaction', id= account.id)}}">New Transaction</a></p>
-        <br>
-        <h2>Account transactions</h2>
-        <table>
-            <thead>
-                <th class="datecolumn">Date</th>
-                <th class="desccolumn">Description</th>
-                <th class="amountcolumn">Amount</th>
-            </thead>
-            <tbody>
-                {% for transaction in transactions %}
-                <tr>
-                    <td>{{ transaction.date.strftime("%d/%m/%Y - %H:%M:%S") }}</td>
-                    <td>{{ transaction.description }}</td>
-                    <td>{{ transaction.amount }} EUR</td>
-                </tr>
-                {% endfor %}
-            </tbody>  
-        </table>
-    </body>
-    {% endblock %}
-</html>
+{% extends "base.html" %}
+{% block content%}
+<h1 class="mb-4">Account {{ account.number }}</h1>
+<div class="card mb-4">
+  <div class="card-body">
+    <h5 class="card-title">Current Balance</h5>
+    <p class="card-text display-4">{{account.balance}} EUR</p>
+    <a id="transaction" href="{{ url_for('transaction', id= account.id)}}" class="btn btn-primary">New Transaction</a>
+  </div>
+</div>
+
+<h2>Account transactions</h2>
+<table class="table table-dark table-striped">
+  <thead>
+    <tr>
+      <th scope="col">Date</th>
+      <th scope="col">Description</th>
+      <th scope="col">Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for transaction in transactions %}
+    <tr>
+      <td>{{ transaction.date.strftime("%d/%m/%Y - %H:%M:%S") }}</td>
+      <td>{{ transaction.description }}</td>
+      <td>{{ transaction.amount }} EUR</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

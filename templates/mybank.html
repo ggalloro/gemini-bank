@@ -1,24 +1,25 @@
-<html>
-    {% extends "base.html" %}
-    {% block content %}
-    <head>
-        <title>Welcome to My Bank</title>
-    </head>
-    <body>
-        <h1 class="pagetitle">{{ user }} main page</h1>
-        {% if accounts %}
-        <h2>Your bank accounts</h2>
-          {% for account in accounts %}
-          <ul>
-            <li><a href="{{url_for('account', id=account.id)}}">Account {{ account.number }}</a></li>
-          </ul>
-          {% endfor %}
-        {% else %}
-          <form method="POST">
-            {{ form.hidden_tag() }}
-            {{ form.submit() }}
-          </form>
-        {% endif %}
-    </body>
-    {% endblock %}
-</html>
+{% extends "base.html" %}
+{% block content %}
+<h1 class="mb-4">Welcome, {{ user }}</h1>
+{% if accounts %}
+<h2>Your bank accounts</h2>
+<div class="list-group">
+  {% for account in accounts %}
+  <a href="{{url_for('account', id=account.id)}}" class="list-group-item list-group-item-action">
+    Account {{ account.number }}
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title">No accounts found</h5>
+    <p class="card-text">You don't have any bank accounts yet. Click the button below to create one.</p>
+    <form method="POST">
+      {{ form.hidden_tag() }}
+      {{ form.submit(class="btn btn-primary") }}
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

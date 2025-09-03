@@ -1,25 +1,32 @@
-<html>
-    {% extends "base.html" %}
-    {% block content%}
-    <head>
-        <title>Register new user</title>
-    </head>
-    <body>
-        <h1 class="pagetitle">Register new user</h1>
-        <form method="POST">
-            {{ form.hidden_tag() }}
-            {{ form.firstname.label }}
-            {{ form.firstname(size=20) }}<br><br>
-            {{ form.lastname.label }}
-            {{ form.lastname(size=20) }}<br><br>
-            {{ form.email.label }}
-            {{ form.email(size=20) }}<br><br>
-            {{ form.password1.label }}
-            {{ form.password1(size=20) }}<br><br>
-            {{ form.password2.label }}
-            {{ form.password2(size=20) }}<br><br>
-            {{ form.submit() }}
-        </form>
-    </body>
-    {% endblock %}
-</html>
+{% extends "base.html" %}
+{% block content%}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <h1>Register new user</h1>
+    <form method="POST">
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        {{ form.firstname.label(class="form-label") }}
+        {{ form.firstname(class="form-control") }}
+      </div>
+      <div class="mb-3">
+        {{ form.lastname.label(class="form-label") }}
+        {{ form.lastname(class="form-control") }}
+      </div>
+      <div class="mb-3">
+        {{ form.email.label(class="form-label") }}
+        {{ form.email(class="form-control") }}
+      </div>
+      <div class="mb-3">
+        {{ form.password1.label(class="form-label") }}
+        {{ form.password1(class="form-control") }}
+      </div>
+      <div class="mb-3">
+        {{ form.password2.label(class="form-label") }}
+        {{ form.password2(class="form-control") }}
+      </div>
+      {{ form.submit(class="btn btn-primary") }}
+    </form>
+  </div>
+</div>
+{% endblock %}
