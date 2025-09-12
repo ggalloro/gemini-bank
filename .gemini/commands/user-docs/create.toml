@@ -17,10 +17,6 @@ index.md (Home/Introduction):
 - Briefly explain what the application does (using the one-sentence description) and who it's for.
 - Outline what the user will learn in the documentation.
 
-getting-started.md (Getting Started):
-- A step-by-step guide to setting up the application for the first time.
-- Use an ordered list and break down the {{Setup/Installation Steps}} into clear, simple actions.
-
 first-steps-tutorial.md (Your First Tutorial):
 - Create a hands-on tutorial that walks the user through achieving their {{Primary User Goal}}.
 - This is the most important section. Use clear headings for each step (e.g., "Step 1: Create a New Project," "Step 2: Add Your Data").

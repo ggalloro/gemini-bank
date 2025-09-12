@@ -1,0 +1,28 @@
+{
+  "chatCompression": {
+    "contextPercentageThreshold": 0.6
+  },
+  "checkpointing": {
+    "enabled": true
+  },
+  "fileFiltering": {
+    "respectGitIgnore": true
+  },
+  "usageStatisticsEnabled": true,
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest",
+        "--headless=new",
+        "--browser=chrome"
+      ]
+    },
+    "nano-banana": {
+      "command": "mcp-gemini-go",
+      "env": {
+        "MCP_SERVER_REQUEST_TIMEOUT": "55000"
+      }
+    }
+  }
+}

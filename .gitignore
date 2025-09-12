@@ -6,3 +6,7 @@ __pycache__/
 *.pyd
 .DS_Store
 .playwright-mcp
+.vscode/
+.env
+mybank.db
+site
