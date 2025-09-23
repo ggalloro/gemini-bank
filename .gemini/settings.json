@@ -14,8 +14,9 @@
       "command": "npx",
       "args": [
         "@playwright/mcp@latest",
-        "--headless=new",
-        "--browser=chrome"
+        "--headless",
+        "--browser=chrome",
+        "--viewport-size=1920, 1080"
       ]
     },
     "nano-banana": {
