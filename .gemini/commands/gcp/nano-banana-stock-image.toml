@@ -1,6 +1,10 @@
 description = "Generates Custom Stock Images using Gemini Nano Banana."
 prompt = """
-Create the following image using "gemini-2.5-flash-image-preview" and store it in the `static/img/` folder unless specified otherwise:
+Create the following image using "gemini-2.5-flash-image-preview" and store it in the `static/img/` folder unless specified otherwise.
+
+A photorealistic image with the impeccable look and feel of a high-end commercial. The cinematography is masterful, featuring soft yet dramatic lighting that sculpts the subject. Employ a shallow depth of field to create a beautiful bokeh effect, and use a clean, deliberate composition. The color is graded with rich, cinematic tones for a polished, luxurious, and aspirational mood.
+
+Scene description:
 
 {{args}}
 """
