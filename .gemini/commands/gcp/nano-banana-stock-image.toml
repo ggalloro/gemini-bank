@@ -1,0 +1,6 @@
+description = "Generates Custom Stock Images using Gemini Nano Banana."
+prompt = """
+Create the following image using "gemini-2.5-flash-image-preview" and store it in the `static/img/` folder unless specified otherwise:
+
+{{args}}
+"""
