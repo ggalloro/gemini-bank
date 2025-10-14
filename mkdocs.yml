@@ -1,7 +1,0 @@
-site_name: Gemini Bank Documentation
-nav:
-    - Home: index.md
-    - Getting Started: getting-started.md
-    - Tutorial: first-steps-tutorial.md
-    - Key Features: key-features.md
-    - FAQ: faq.md

@@ -1,14 +1,19 @@
 {
-  "chatCompression": {
-    "contextPercentageThreshold": 0.6
+  "model": {
+    "chatCompression": {
+      "contextPercentageThreshold": 0.6
+    }
   },
-  "checkpointing": {
-    "enabled": true
+  "general": {
+    "checkpointing": {
+      "enabled": true
+    }
   },
-  "fileFiltering": {
-    "respectGitIgnore": true
+  "context": {
+    "fileFiltering": {
+      "respectGitIgnore": true
+    }
   },
-  "usageStatisticsEnabled": true,
   "mcpServers": {
     "playwright": {
       "command": "npx",
@@ -22,8 +27,13 @@
     "nano-banana": {
       "command": "mcp-gemini-go",
       "env": {
-        "MCP_SERVER_REQUEST_TIMEOUT": "55000"
+        "MCP_SERVER_REQUEST_TIMEOUT": "55000",
+        "PROJECT_ID": "strebel-workspace",
+        "GOPATH": "/home/user/go"
       }
     }
+  },
+  "privacy": {
+    "usageStatisticsEnabled": true
   }
 }
