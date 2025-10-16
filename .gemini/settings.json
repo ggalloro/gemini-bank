@@ -15,22 +15,21 @@
     }
   },
   "mcpServers": {
-    "playwright": {
-      "command": "npx",
-      "args": [
-        "@playwright/mcp@latest",
-        "--headless",
-        "--browser=chrome",
-        "--viewport-size=1920, 1080"
-      ]
-    },
     "nano-banana": {
-      "command": "mcp-gemini-go",
+      "command": "/home/user/go/bin/mcp-gemini-go",
       "env": {
         "MCP_SERVER_REQUEST_TIMEOUT": "55000",
         "PROJECT_ID": "strebel-workspace",
         "GOPATH": "/home/user/go"
       }
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "chrome-devtools-mcp@latest",
+        "--headless=true",
+        "--viewport=1920x1080"
+      ]
     }
   },
   "privacy": {
