@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}New Deposit - Gemini Bank{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <a href="{{ url_for('account', id=account.id) }}" class="btn btn-outline-secondary btn-sm mb-3">
+            <i class="bi bi-arrow-left"></i> Cancel
+        </a>
+        
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0"><i class="bi bi-cash-coin me-2"></i>New Deposit</h4>
+            </div>
+            <div class="card-body p-4">
+                <p class="mb-4">Depositing to Account <strong>#{{ account.number }}</strong></p>
+                
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows="3", placeholder="e.g. Salary, Savings...") }}
+                    </div>
+                    
+                    <div class="mb-4">
+                        {{ form.amount.label(class="form-label") }}
+                        <div class="input-group">
+                            <span class="input-group-text">EUR</span>
+                            {{ form.amount(class="form-control", placeholder="0.00") }}
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-success btn-lg") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,25 +1,51 @@
-<html>
-    {% extends "base.html" %}
-    {% block content%}
-    <head>
-        <title>Register new user</title>
-    </head>
-    <body>
-        <h1 class="pagetitle">Register new user</h1>
-        <form method="POST">
-            {{ form.hidden_tag() }}
-            {{ form.firstname.label }}
-            {{ form.firstname(size=20) }}<br><br>
-            {{ form.lastname.label }}
-            {{ form.lastname(size=20) }}<br><br>
-            {{ form.email.label }}
-            {{ form.email(size=20) }}<br><br>
-            {{ form.password1.label }}
-            {{ form.password1(size=20) }}<br><br>
-            {{ form.password2.label }}
-            {{ form.password2(size=20) }}<br><br>
-            {{ form.submit() }}
-        </form>
-    </body>
-    {% endblock %}
-</html>
+{% extends "base.html" %}
+
+{% block title %}Register - Gemini Bank{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body p-5">
+                <h2 class="card-title text-center mb-4 text-primary">Create an Account</h2>
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            {{ form.firstname.label(class="form-label") }}
+                            {{ form.firstname(class="form-control") }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.lastname.label(class="form-label") }}
+                            {{ form.lastname(class="form-control") }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.email.label(class="form-label") }}
+                        {{ form.email(class="form-control", placeholder="name@example.com") }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.password1.label(class="form-label") }}
+                        {{ form.password1(class="form-control") }}
+                    </div>
+                    
+                    <div class="mb-4">
+                        {{ form.password2.label(class="form-label") }}
+                        {{ form.password2(class="form-control") }}
+                    </div>
+                    
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary btn-lg") }}
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center py-3 bg-light border-0 text-muted">
+                Already have an account? <a href="{{ url_for('login') }}" class="text-primary text-decoration-none">Login</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

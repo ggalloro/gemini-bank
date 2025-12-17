@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, BooleanField, SelectField, TextAreaField, DecimalField
-from wtforms.validators import DataRequired, Email, EqualTo, NumberRange
+from wtforms.validators import DataRequired, Email, EqualTo, NumberRange, Optional
 
 
 class RegisterForm(FlaskForm):
@@ -20,8 +20,15 @@ class LoginForm(FlaskForm):
 class CreateAccountForm(FlaskForm):
     submit = SubmitField("Create Account")
 
-class TransactionForm(FlaskForm):
+class DepositForm(FlaskForm):
+    amount = DecimalField("Amount", validators=[DataRequired(), NumberRange(min=0.01)], places=2)
     description = TextAreaField("Description", validators=[DataRequired()])
-    amount = DecimalField("Amount", validators=[DataRequired(), NumberRange(min=0)], places=2, rounding=None)
-    type = SelectField("Transaction Type", validators=[DataRequired()], choices=[("deposit","Deposit"),("transfer","Transfer")])
-    submit = SubmitField("Make Transaction")
+    submit = SubmitField("Deposit")
+
+class PaymentForm(FlaskForm):
+    amount = DecimalField("Amount", validators=[DataRequired(), NumberRange(min=0.01)], places=2)
+    description = TextAreaField("Description", validators=[DataRequired()])
+    payment_type = SelectField("Payment Type", choices=[('internal', 'Internal'), ('external', 'External')], default='internal')
+    internal_account = SelectField("Recipient Account", coerce=int, validators=[Optional()], validate_choice=False)
+    external_account = StringField("External Account Number")
+    submit = SubmitField("Make Payment")

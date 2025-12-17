@@ -1,8 +1,47 @@
-<html>
-    {% extends "base.html" %}
-    {% block content%}
-    <head>
-        <title>Welcome to My Bank</title>
-    </head>
-    {% endblock %}
-</html>
+{% extends "base.html" %}
+
+{% block title %}Welcome to Gemini Bank{% endblock %}
+
+{% block content %}
+<div class="row align-items-center g-5 py-5">
+    <div class="col-lg-6">
+        <h1 class="display-4 fw-bold lh-1 mb-3">Banking Made Simple & Secure</h1>
+        <p class="lead">Experience the future of banking with Gemini Bank. Manage your accounts, transfer funds, and track your expenses with ease and confidence.</p>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+            {% if user == "anonymous" %}
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4 me-md-2">Get Started</a>
+            <a href="{{ url_for('login') }}" class="btn btn-outline-secondary btn-lg px-4">Log In</a>
+            {% else %}
+            <a href="{{ url_for('mybank') }}" class="btn btn-primary btn-lg px-4 me-md-2">Go to My Dashboard</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <img src="{{ url_for('static', filename='img/hero.png') }}" class="d-block mx-lg-auto img-fluid rounded shadow-lg" alt="Gemini Bank Hero Image" width="700" height="500" loading="lazy">
+    </div>
+</div>
+
+<div class="row mt-5 text-center">
+    <div class="col-lg-4">
+        <div class="p-3 border bg-white rounded shadow-sm h-100">
+            <i class="bi bi-shield-check fs-1 text-primary"></i>
+            <h3 class="mt-3">Secure</h3>
+            <p>Your data and transactions are protected with industry-standard security measures.</p>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="p-3 border bg-white rounded shadow-sm h-100">
+            <i class="bi bi-lightning-charge fs-1 text-primary"></i>
+            <h3 class="mt-3">Fast</h3>
+            <p>Instant transfers and real-time updates on your account balance.</p>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="p-3 border bg-white rounded shadow-sm h-100">
+            <i class="bi bi-phone fs-1 text-primary"></i>
+            <h3 class="mt-3">Accessible</h3>
+            <p>Access your bank account from anywhere, anytime, on any device.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

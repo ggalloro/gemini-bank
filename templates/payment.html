@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}New Payment - Gemini Bank{% endblock %}
+
+{% block content %}
+<script>
+    function toggleFields() {
+        var type = document.getElementById("payment_type").value;
+        var internalDiv = document.getElementById("internal-div");
+        var externalDiv = document.getElementById("external-div");
+        
+        if (type === 'internal') {
+            internalDiv.style.display = "block";
+            externalDiv.style.display = "none";
+        } else {
+            internalDiv.style.display = "none";
+            externalDiv.style.display = "block";
+        }
+    }
+    window.onload = toggleFields;
+</script>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <a href="{{ url_for('account', id=account.id) }}" class="btn btn-outline-secondary btn-sm mb-3">
+            <i class="bi bi-arrow-left"></i> Cancel
+        </a>
+        
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="bi bi-send me-2"></i>New Payment</h4>
+            </div>
+            <div class="card-body p-4">
+                <p class="mb-4">From Account <strong>#{{ account.number }}</strong> <span class="text-muted">(Balance: {{ "%.2f"|format(account.balance) }} EUR)</span></p>
+                
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.payment_type.label(class="form-label") }}
+                        {{ form.payment_type(class="form-select", onchange="toggleFields()") }}
+                    </div>
+                    
+                    <div id="internal-div" class="mb-3">
+                        {{ form.internal_account.label(class="form-label") }}
+                        {{ form.internal_account(class="form-select") }}
+                        <div class="form-text">Select a registered beneficiary.</div>
+                    </div>
+                    
+                    <div id="external-div" class="mb-3" style="display:none;">
+                        {{ form.external_account.label(class="form-label") }}
+                        {{ form.external_account(class="form-control", placeholder="IBAN or Account Number") }}
+                        <div class="form-text">Enter the external account details.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows="3", placeholder="Payment reference...") }}
+                    </div>
+                    
+                    <div class="mb-4">
+                        {{ form.amount.label(class="form-label") }}
+                        <div class="input-group">
+                            <span class="input-group-text">EUR</span>
+                            {{ form.amount(class="form-control", placeholder="0.00") }}
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary btn-lg") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
