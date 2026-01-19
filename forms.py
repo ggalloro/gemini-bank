@@ -20,8 +20,15 @@ class LoginForm(FlaskForm):
 class CreateAccountForm(FlaskForm):
     submit = SubmitField("Create Account")
 
-class TransactionForm(FlaskForm):
+class DepositForm(FlaskForm):
+    amount = DecimalField("Amount", validators=[DataRequired(), NumberRange(min=0.01)], places=2)
     description = TextAreaField("Description", validators=[DataRequired()])
-    amount = DecimalField("Amount", validators=[DataRequired(), NumberRange(min=0)], places=2, rounding=None)
-    type = SelectField("Transaction Type", validators=[DataRequired()], choices=[("deposit","Deposit"),("transfer","Transfer")])
-    submit = SubmitField("Make Transaction")
+    submit = SubmitField("Confirm Deposit")
+
+class PaymentForm(FlaskForm):
+    amount = DecimalField("Amount", validators=[DataRequired(), NumberRange(min=0.01)], places=2)
+    description = TextAreaField("Description", validators=[DataRequired()])
+    payment_type = SelectField("Payment Type", choices=[("internal", "Internal"), ("external", "External")], validators=[DataRequired()])
+    internal_account = SelectField("Internal Account", coerce=int, validators=[], validate_choice=False)
+    external_account = StringField("External Account (IBAN)")
+    submit = SubmitField("Make Payment")

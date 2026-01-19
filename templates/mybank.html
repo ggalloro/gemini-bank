@@ -1,24 +1,41 @@
-<html>
-    {% extends "base.html" %}
-    {% block content %}
-    <head>
-        <title>Welcome to My Bank</title>
-    </head>
-    <body>
-        <h1 class="pagetitle">{{ user }} main page</h1>
-        {% if accounts %}
-        <h2>Your bank accounts</h2>
-          {% for account in accounts %}
-          <ul>
-            <li><a href="{{url_for('account', id=account.id)}}">Account {{ account.number }}</a></li>
-          </ul>
-          {% endfor %}
-        {% else %}
-          <form method="POST">
-            {{ form.hidden_tag() }}
-            {{ form.submit() }}
-          </form>
-        {% endif %}
-    </body>
-    {% endblock %}
-</html>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 text-gray-800">My Dashboard</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        {{ form.submit(class="btn btn-success shadow-sm") }}
+    </form>
+</div>
+
+<h2 class="h5 mb-3 text-muted">Your Accounts</h2>
+
+{% if accounts %}
+<div class="row">
+    {% for account in accounts %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card shadow border-0 h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="card-title text-primary mb-0">Account #{{ account.number }}</h5>
+                    <i class="fas fa-university text-muted"></i>
+                </div>
+                <h2 class="card-text fw-bold mb-3">{{ "%.2f"|format(account.balance) }} EUR</h2>
+                <p class="text-muted small mb-0">Created: {{ account.created_at.strftime('%Y-%m-%d') }}</p>
+            </div>
+            <div class="card-footer bg-transparent border-top-0 pb-3">
+                <div class="d-grid">
+                    <a href="{{ url_for('account', id=account.id) }}" class="btn btn-outline-primary">View Details</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-warning" role="alert">
+    You don't have any accounts yet. Create one to get started!
+</div>
+{% endif %}
+{% endblock %}

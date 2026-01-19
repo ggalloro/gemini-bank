@@ -5,3 +5,5 @@ wtforms
 flask_login
 werkzeug
 email_validator
+pytest
+pytest-flask

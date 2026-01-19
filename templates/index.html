@@ -1,8 +1,53 @@
-<html>
-    {% extends "base.html" %}
-    {% block content%}
-    <head>
-        <title>Welcome to My Bank</title>
-    </head>
-    {% endblock %}
-</html>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row align-items-center min-vh-75 py-5">
+    <div class="col-lg-6">
+        <h1 class="display-4 fw-bold text-primary mb-3">Banking Made Simple</h1>
+        <p class="lead text-muted mb-4">Experience the future of banking with Gemini Bank. Secure, fast, and reliable financial services at your fingertips.</p>
+        {% if not current_user.is_authenticated %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4 me-md-2">Get Started</a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-secondary btn-lg px-4">Login</a>
+            </div>
+        {% else %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                <a href="{{ url_for('mybank') }}" class="btn btn-primary btn-lg px-4">Go to Dashboard</a>
+            </div>
+        {% endif %}
+    </div>
+    <div class="col-lg-6 text-center">
+        <img src="{{ url_for('static', filename='img/hero.png') }}" class="img-fluid rounded-3 shadow-lg" alt="Banking Hero Image">
+    </div>
+</div>
+
+<div class="row mt-5 text-center">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <i class="fas fa-wallet fa-3x text-primary mb-3"></i>
+                <h3 class="card-title h5">Easy Management</h3>
+                <p class="card-text text-muted">Manage all your accounts from a single dashboard.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <i class="fas fa-exchange-alt fa-3x text-primary mb-3"></i>
+                <h3 class="card-title h5">Fast Transfers</h3>
+                <p class="card-text text-muted">Send money instantly to internal or external accounts.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
+                <h3 class="card-title h5">Secure</h3>
+                <p class="card-text text-muted">Your data and money are protected with industry standards.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
