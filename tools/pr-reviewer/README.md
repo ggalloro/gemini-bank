@@ -28,9 +28,12 @@ semantics, and rules) and set `REVIEW_SKILL: my-review`.
 2. The script fetches the PR metadata and the per-file diff from the GitHub API.
 3. It creates a managed-agent interaction. The sandbox is provisioned with the
    repository mounted at `/workspace/repo` through the `repository` environment
-   source. The agent runs `git fetch origin pull/<N>/head` plus a checkout to
-   bring the mounted repo to the exact PR state: two git commands on an
-   already-present working tree.
+   source, and with the selected review skill mounted at
+   `.agents/skills/<name>/SKILL.md` through an `inline` source (the runtime
+   auto-registers skills under `.agents/skills/`; the same rubric also rides in
+   the system instruction so it applies unconditionally). The agent runs
+   `git fetch origin pull/<N>/head` plus a checkout to bring the mounted repo
+   to the exact PR state: two git commands on an already-present working tree.
 4. The prompt carries the PR diff; the mounted repository provides the
    surrounding code, specs, and docs the agent reads for context.
 5. The agent returns findings as JSON matching the schema in `schema.py`; the

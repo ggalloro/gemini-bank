@@ -123,6 +123,7 @@ def run_review(
     base_branch: str,
     head_branch: str,
     diff_prompt: str,
+    skill_name: str,
     skill_text: str,
     git_auth_header: str | None = None,
 ) -> dict[str, Any]:
@@ -140,6 +141,15 @@ def run_review(
         "type": "remote",
         "sources": [
             {"type": "repository", "source": clone_url, "target": REPO_MOUNT},
+            # The review skill is also mounted into the sandbox as an inline
+            # source (.agents/skills/ is auto-registered by the runtime); the
+            # same text rides in the system_instruction below so the rubric is
+            # applied unconditionally.
+            {
+                "type": "inline",
+                "target": f".agents/skills/{skill_name}/SKILL.md",
+                "content": skill_text,
+            },
         ],
         "network": {"allowlist": [github_entry]},
     }
@@ -290,6 +300,7 @@ def main() -> int:
         base_branch=pr["base"]["ref"],
         head_branch=pr["head"]["ref"],
         diff_prompt=diff_prompt,
+        skill_name=skill_name,
         skill_text=skill_text,
         git_auth_header=build_basic_auth_header(gh_token) if private else None,
     )
