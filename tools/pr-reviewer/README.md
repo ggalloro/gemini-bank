@@ -20,17 +20,7 @@ To add a review type, create `skills/<my-review>/SKILL.md` (frontmatter `name`
 and `description`, body with the focus areas, category names, severity
 semantics, and rules) and set `REVIEW_SKILL: my-review`.
 
-```
-PR opened -> GitHub Actions (pull_request) -> Interactions API
-                                                  |
-                       hosted Gemini managed agent (sandbox)
-                       . repository mounted via the `repository` source
-                       . fetches pull/<N>/head to reach the PR state
-                       . reviews the diff in the context of the codebase
-                       . criteria come from the selected SKILL.md
-                                                  |
-                    GitHub API <- summary comment + inline review comments
-```
+![Architecture](images/architecture.png)
 
 ## How it works
 
