@@ -7,9 +7,12 @@
     <body>
         <h1 class="pagetitle">Account {{ account.number }}</h1>
         <br>
-        <p> Current balance: {{account.balance}} EUR</p>
+        <p class="current-balance">Current Balance: <strong>{{ account.balance }} EUR</strong></p>
         <br>
-        <p class="center"><a id="transaction" href="{{ url_for('transaction', id= account.id)}}">New Transaction</a></p>
+        <div class="actions-container">
+            <a id="deposit-btn" class="action-btn deposit-btn" href="{{ url_for('deposit', id=account.id) }}">Deposit Money</a>
+            <a id="payment-btn" class="action-btn payment-btn" href="{{ url_for('payment', id=account.id) }}">Send Payment</a>
+        </div>
         <br>
         <h2>Account transactions</h2>
         <table>

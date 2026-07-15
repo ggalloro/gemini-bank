@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block content %}
+<head>
+    <title>Send Payment - Gemini Bank</title>
+</head>
+<body>
+    <div class="form-page-container">
+        <p><a href="{{ url_for('account', id=account.id) }}" class="back-link">← Back to Account {{ account.number }}</a></p>
+        
+        <div class="form-card">
+            <h1 class="pagetitle">Send Payment</h1>
+            <p class="form-intro">Transfer funds securely from Account <strong>{{ account.number }}</strong>. Available Balance: <strong>{{ account.balance }} EUR</strong></p>
+            
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                
+                <div class="form-group">
+                    {{ form.recipient_type.label(class="form-label") }}
+                    {{ form.recipient_type(class="form-control", id="recipient_type") }}
+                    {% if form.recipient_type.errors %}
+                        <div class="error-msg">{{ form.recipient_type.errors[0] }}</div>
+                    {% endif %}
+                </div>
+                
+                <!-- Dynamically-toggled Internal Account Dropdown -->
+                <div class="form-group" id="internal-account-group">
+                    {{ form.internal_account.label(class="form-label") }}
+                    {{ form.internal_account(class="form-control", id="internal_account") }}
+                    {% if form.internal_account.errors %}
+                        <div class="error-msg">{{ form.internal_account.errors[0] }}</div>
+                    {% endif %}
+                </div>
+                
+                <!-- Dynamically-toggled External Account Input -->
+                <div class="form-group" id="external-account-group" style="display: none;">
+                    {{ form.external_account.label(class="form-label") }}
+                    {{ form.external_account(class="form-control", id="external_account", placeholder="Enter external account number or IBAN") }}
+                    {% if form.external_account.errors %}
+                        <div class="error-msg">{{ form.external_account.errors[0] }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    {{ form.amount.label(class="form-label") }}
+                    {{ form.amount(class="form-control", placeholder="0.00", step="0.01") }}
+                    {% if form.amount.errors %}
+                        <div class="error-msg">{{ form.amount.errors[0] }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    {{ form.description.label(class="form-label") }}
+                    {{ form.description(class="form-control text-area", placeholder="Enter payment description or reference...") }}
+                    {% if form.description.errors %}
+                        <div class="error-msg">{{ form.description.errors[0] }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-actions">
+                    {{ form.submit(class="btn btn-submit") }}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Interactive script to show/hide fields based on selected recipient type -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const recipientTypeSelect = document.getElementById("recipient_type");
+            const internalGroup = document.getElementById("internal-account-group");
+            const externalGroup = document.getElementById("external-account-group");
+            
+            function toggleFields() {
+                if (recipientTypeSelect.value === "internal") {
+                    internalGroup.style.display = "block";
+                    externalGroup.style.display = "none";
+                } else {
+                    internalGroup.style.display = "none";
+                    externalGroup.style.display = "block";
+                }
+            }
+            
+            // Set initial state
+            toggleFields();
+            
+            // Add change listener
+            recipientTypeSelect.addEventListener("change", toggleFields);
+        });
+    </script>
+</body>
+{% endblock %}

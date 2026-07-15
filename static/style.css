@@ -1,59 +1,373 @@
+/* Global Modern CSS Variables & Resets */
+:root {
+  --primary-color: #4f46e5;       /* Indigo */
+  --primary-hover: #4338ca;
+  --secondary-color: #0ea5e9;     /* Ocean Blue */
+  --secondary-hover: #0284c7;
+  --text-dark: #1f2937;           /* Slate */
+  --text-light: #4b5563;          /* Soft Gray text */
+  --bg-light: #f3f4f6;            /* Soft body background */
+  --bg-card: #ffffff;             /* Crisp white card background */
+  --border-color: #e5e7eb;
+  --error-color: #ef4444;
+  --success-color: #10b981;
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
 
-  table {
-    border-collapse: collapse;
-    width: 80%;
-  }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  transition: all 0.2s ease-in-out;
+}
 
-  th, td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: left;
-  }
+body {
+  background: radial-gradient(circle at 10% 20%, rgb(242, 235, 243) 0%, rgb(245, 247, 250) 90.1%);
+  color: var(--text-dark);
+  line-height: 1.6;
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-  th {
-    background-color: #f2f2f2;
-  }
+/* Header & Navigation */
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+}
 
-  tr:hover {
-    background-color: #f9f9f9;
-  }
-  .datecolumn {
-    width: 20%
-  }
+a:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
 
-  .amountcolumn {
-    width: 20%
-  }
+/* Base.html header wrapper styling */
+.profile {
+  width: 100%;
+  max-width: 900px;
+  text-align: right;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+  color: var(--text-light);
+  padding: 10px 15px;
+  background-color: var(--bg-card);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
 
-  .profile {
-    text-align:right
-  }
+.profile a {
+  margin-left: 5px;
+  font-weight: 600;
+}
 
-  * {
-    font-family: Helvetica
-  }
+/* Flash Messages */
+p:not([class]) {
+  background-color: #ecfdf5;
+  color: var(--success-color);
+  border: 1px solid #a7f3d0;
+  padding: 12px 18px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  width: 100%;
+  max-width: 900px;
+  text-align: center;
+  font-weight: 500;
+  box-shadow: var(--shadow-sm);
+}
 
-  .pagetitle {
-    background-color: cornflowerblue;
-    color: white
-  }
+/* Layout Containers */
+.container, .form-page-container {
+  width: 100%;
+  max-width: 900px;
+  background: var(--bg-card);
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+  margin-top: 20px;
+}
 
-  #transaction {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: lightgray;
-    color: blue;
-    text-decoration: none;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-    transform: translateY(1px);
-    text-align:right
-  }
+/* Headings */
+h1, h2, h3 {
+  font-weight: 700;
+  margin-bottom: 20px;
+}
 
-  .right {
-    text-align:right
-  }
+.pagetitle {
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 15px;
+}
 
-  .center {
-    text-align:center
-  }
+h2 {
+  font-size: 1.4rem;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 8px;
+  color: var(--text-dark);
+  margin-top: 30px;
+}
+
+/* Forms Card Layout */
+.form-card {
+  width: 100%;
+}
+
+.form-intro {
+  color: var(--text-light);
+  margin-bottom: 25px;
+  font-size: 1.05rem;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border-color);
+  background-color: #fafafa;
+  font-size: 1rem;
+  outline: none;
+}
+
+.form-control:focus {
+  border-color: var(--primary-color);
+  background-color: #fff;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+}
+
+.text-area {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* Form Action & Buttons */
+.form-actions {
+  margin-top: 30px;
+}
+
+.btn, .action-btn, input[type="submit"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn:active, .action-btn:active, input[type="submit"]:active {
+  transform: scale(0.98);
+}
+
+/* Primary Form Button style */
+input[type="submit"], .btn-submit, .btn-primary {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #4338ca 100%);
+  color: white !important;
+}
+
+input[type="submit"]:hover, .btn-submit:hover, .btn-primary:hover {
+  background: linear-gradient(135deg, #4338ca 0%, #3730a3 100%);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+/* Action buttons on Account page */
+.actions-container {
+  display: flex;
+  gap: 15px;
+  margin: 15px 0 25px 0;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  flex: 1;
+  min-width: 180px;
+  padding: 14px 28px;
+  text-decoration: none !important;
+}
+
+.deposit-btn {
+  background: linear-gradient(135deg, var(--secondary-color) 0%, #0284c7 100%);
+  color: white !important;
+}
+
+.deposit-btn:hover {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+
+.payment-btn {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #4338ca 100%);
+  color: white !important;
+}
+
+.payment-btn:hover {
+  background: linear-gradient(135deg, #4338ca 0%, #3730a3 100%);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+/* Back navigation links */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 25px;
+  color: var(--text-light);
+  text-decoration: none !important;
+}
+
+.back-link:hover {
+  color: var(--primary-color);
+  transform: translateX(-3px);
+}
+
+/* Tables and Statements */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 15px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+th, td {
+  padding: 14px 16px;
+  text-align: left;
+}
+
+th {
+  background-color: #f8fafc;
+  color: var(--text-dark);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--border-color);
+}
+
+td {
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-light);
+  font-size: 0.95rem;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:hover {
+  background-color: #f8fafc;
+}
+
+.datecolumn {
+  width: 25%;
+}
+
+.amountcolumn {
+  width: 25%;
+  font-weight: 600;
+}
+
+/* Highlight positive vs negative transactions */
+td:nth-child(3) {
+  font-weight: 600;
+}
+
+/* List Accounts items */
+ul {
+  list-style: none;
+  margin-top: 15px;
+}
+
+ul li {
+  margin-bottom: 12px;
+}
+
+ul li a {
+  display: block;
+  padding: 16px 20px;
+  background-color: #fafafa;
+  border: 1.5px solid var(--border-color);
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  box-shadow: var(--shadow-sm);
+}
+
+ul li a:hover {
+  background-color: white;
+  border-color: var(--primary-color);
+  box-shadow: var(--shadow-md);
+  color: var(--primary-color);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+/* Error messages below inputs */
+.error-msg {
+  color: var(--error-color);
+  font-size: 0.85rem;
+  margin-top: 5px;
+  font-weight: 500;
+}
+
+/* Global Navigation Header Link at top */
+body > a:first-of-type {
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 15px;
+  text-decoration: none !important;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Helpers */
+.center, .text-center {
+  text-align: center;
+}
+
+.right, .text-right {
+  text-align: right;
+}
+
+.current-balance {
+  font-size: 1.1rem;
+  color: var(--text-light);
+}
+
+.current-balance strong {
+  color: var(--text-dark);
+  font-size: 1.3rem;
+}
