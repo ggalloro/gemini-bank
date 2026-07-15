@@ -1,0 +1,54 @@
+# GitHub Actions workflow for the managed-agent PR reviewer.
+#
+# Copy this file to .github/workflows/pr-review.yml in the repo you want
+# reviewed, and vendor the tool at tools/pr-reviewer/ (see README).
+#
+# Required repository secret (Settings > Secrets and variables > Actions):
+#   GEMINI_API_KEY - AI Studio key for the managed agent.
+# GITHUB_TOKEN is provided automatically by Actions; the `permissions` block
+# below grants it the ability to comment on the PR (and to let the managed
+# agent mount/fetch a private repo via header injection).
+#
+# Pick the review type by setting REVIEW_SKILL to a folder name under
+# tools/pr-reviewer/skills/ (e.g. security-review, code-quality-review).
+
+name: pr-review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "Pull request number to review"
+        required: true
+      review_skill:
+        description: "Review skill (folder under tools/pr-reviewer/skills/)"
+        required: false
+        default: "security-review"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  agent-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install reviewer dependencies
+        run: pip install --no-cache-dir -r tools/pr-reviewer/requirements.txt
+
+      - name: Review the pull request
+        run: python tools/pr-reviewer/review_pr.py
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
+          REVIEW_SKILL: ${{ inputs.review_skill || 'security-review' }}

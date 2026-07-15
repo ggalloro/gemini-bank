@@ -1,0 +1,4 @@
+# Managed Agents (client.interactions) — >= 2.10.0 also fixes the network
+# allowlist `transform` shape (a list of {header: value} dicts).
+google-genai>=2.10.0
+requests>=2.31.0
