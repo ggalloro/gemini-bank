@@ -20,24 +20,7 @@ To add a review type, create `skills/<my-review>/SKILL.md` (frontmatter `name`
 and `description`, body with the focus areas, category names, severity
 semantics, and rules) and set `REVIEW_SKILL: my-review`.
 
-```mermaid
-flowchart LR
-    PR["GitHub pull request"] --> GA["GitHub Actions<br/>review_pr.py"]
-    GA --> SI
-    subgraph SB["Sandbox environment (isolated Linux VM)"]
-        SI["System instructions"] --> AGENT["Managed agent<br/>fetch PR head, review diff in context"]
-        subgraph WS["/workspace"]
-            SKILL["SKILL.md"]
-            REPO["/repo"]
-        end
-    end
-    AGENT <--> GEM["Gemini model"]
-    GA --> SUM["Summary comment"]
-    GA --> INL["Inline review comments"]
-    ISRC["Inline source"] --> SKILL
-    RSRC["Repository source"] --> REPO
-    TOK["Egress proxy injected GitHub token"] --> RSRC
-```
+![Architecture](images/architecture.png)
 
 ## How it works
 
