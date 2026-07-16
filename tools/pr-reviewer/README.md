@@ -102,12 +102,11 @@ python review_pr.py   # prints the findings JSON, posts nothing
   a 422 (line outside the diff) are grouped into one additional comment.
 - **Diff size**: the per-file diff in the prompt is capped at 20,000 characters
   (`build_diff_prompt`); files without a textual `patch` (binary or very large)
-  are listed with a note.
+  are listed with a note. For truncated or patch-less files, the prompt
+  instructs the agent to read the full change from the mounted repository with
+  `git diff origin/<base>...HEAD -- <path>`.
 - **Model**: the `BASE_AGENT` env var selects the agent id (default
   `antigravity-preview-05-2026`).
-- A GitLab CI variant of this tool lives in `gitlab-mr-reviewer/`; it supplies
-  the diff in the prompt with the sandbox network disabled and posts through
-  the GitLab API.
 
 ## Caveats
 
