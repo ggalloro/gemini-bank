@@ -54,6 +54,22 @@ class GitHub:
                 return files
             page += 1
 
+    def list_issue_comments(self, number: int) -> list[dict[str, Any]]:
+        """All conversation comments on the PR, oldest first (paginated)."""
+        comments: list[dict[str, Any]] = []
+        page = 1
+        while True:
+            r = self.s.get(
+                self._url(f"/issues/{number}/comments"),
+                params={"per_page": 100, "page": page},
+            )
+            r.raise_for_status()
+            batch = r.json()
+            comments.extend(batch)
+            if len(batch) < 100:
+                return comments
+            page += 1
+
     # ------------------------------------------------------------------ #
     def post_issue_comment(self, number: int, body: str) -> None:
         """A plain comment in the PR conversation (used for the summary)."""

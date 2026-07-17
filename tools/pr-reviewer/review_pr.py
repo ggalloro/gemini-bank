@@ -4,19 +4,29 @@ Flow (runs inside the Actions job):
   1. Read PR context from Actions env vars (or PR_NUMBER for manual runs).
   2. Fetch the PR metadata + per-file diff from the GitHub API.
   3. Create a managed-agent interaction whose sandbox has the repository
-     PRE-MOUNTED via the `repository` environment source (GitHub-native path);
-     the agent brings it to the exact PR state with a cheap
-     `git fetch origin pull/<N>/head` and reviews the diff in context.
+     PRE-MOUNTED via the `repository` environment source; the agent brings it
+     to the exact PR state with a cheap `git fetch origin pull/<N>/head` and
+     reviews the diff in context.
   4. The review rubric is PLUGGABLE: skills/<REVIEW_SKILL>/SKILL.md is appended
-     to a review-type-agnostic base system instruction. Swap the skill to run a
-     different kind of review — no code change.
-  5. Parse the agent's JSON and post a summary comment + line-anchored review
+     to a review-type-agnostic base system instruction and mounted into the
+     sandbox. Swap the skill to run a different kind of review.
+  5. FOLLOW-UP REVIEWS remember the previous round: the tool stores the
+     interaction/environment ids in a hidden marker inside the summary comment
+     it posts, and the next run on the same PR resumes the conversation via
+     previous_interaction_id (sandbox reuse too, for public repos).
+  6. The agent gets an authenticated GitHub CLI through a shim wrapper
+     (bin/gh-shim.sh mounted at /workspace/bin/gh): a dummy token satisfies the
+     CLI locally while the egress proxy injects the real job token at the
+     network layer. The agent uses it read-only for context (linked issues,
+     earlier comments, CI checks); posting stays in this script.
+  7. Parse the agent's JSON and post a summary comment + line-anchored review
      comments back on the PR.
 
 Required env: GEMINI_API_KEY, GITHUB_TOKEN, GITHUB_REPOSITORY, and the PR
 number (PR_NUMBER, or GITHUB_EVENT_PATH from the pull_request event).
 Optional env: REVIEW_SKILL (default "security-review"), BASE_AGENT,
-GITHUB_API_URL / GITHUB_SERVER_URL (set by Actions; default to github.com),
+PERSIST=0 to disable follow-up memory, AGENT_GH=0 to remove the GitHub CLI
+from the sandbox, GITHUB_API_URL / GITHUB_SERVER_URL (set by Actions),
 DRY_RUN=1 to print findings instead of posting.
 """
 
@@ -46,18 +56,17 @@ from schema import (
 
 BASE_AGENT = os.environ.get("BASE_AGENT", "antigravity-preview-05-2026")
 SKILLS_DIR = pathlib.Path(__file__).parent / "skills"
+SHIM_SOURCE = pathlib.Path(__file__).parent / "bin" / "gh-shim.sh"
 REPO_MOUNT = "/workspace/repo"
+GH_WRAPPER = "/workspace/bin/gh"
+STATE_MARKER_RE = re.compile(r"<!-- github-pr-reviewer:state (\{.*?\}) -->")
 
 
 # --------------------------------------------------------------------------- #
 # Skill loading (the pluggable part)
 # --------------------------------------------------------------------------- #
 def load_skill(name: str) -> tuple[str, str]:
-    """Return (title, rubric text) for skills/<name>/SKILL.md.
-
-    The whole file (frontmatter included) is sent to the agent; the title shown
-    in the PR comment comes from the frontmatter `name:` when present.
-    """
+    """Return (title, rubric text) for skills/<name>/SKILL.md."""
     path = SKILLS_DIR / name / "SKILL.md"
     if not path.is_file():
         available = sorted(p.parent.name for p in SKILLS_DIR.glob("*/SKILL.md"))
@@ -67,6 +76,33 @@ def load_skill(name: str) -> tuple[str, str]:
     text = path.read_text(encoding="utf-8")
     m = re.search(r"^name:\s*(.+)$", text, re.MULTILINE)
     return (m.group(1).strip() if m else name), text
+
+
+# --------------------------------------------------------------------------- #
+# Follow-up state (persisted as a hidden marker in the summary comment)
+# --------------------------------------------------------------------------- #
+def build_state_marker(state: dict[str, Any]) -> str:
+    return f"<!-- github-pr-reviewer:state {json.dumps(state)} -->"
+
+
+def find_state(gh: GitHub, pr_number: int, skill_name: str) -> dict[str, Any] | None:
+    """Latest persisted state for this PR + skill, from past summary comments."""
+    try:
+        comments = gh.list_issue_comments(pr_number)
+    except Exception as exc:
+        print(f"⚠️  could not list PR comments for state recovery: {exc}", file=sys.stderr)
+        return None
+    for c in reversed(comments):
+        m = STATE_MARKER_RE.search(c.get("body") or "")
+        if not m:
+            continue
+        try:
+            state = json.loads(m.group(1))
+        except json.JSONDecodeError:
+            continue
+        if state.get("skill") == skill_name and state.get("interaction_id"):
+            return state
+    return None
 
 
 # --------------------------------------------------------------------------- #
@@ -115,54 +151,110 @@ def _parse_json(raw: str) -> dict[str, Any]:
 # --------------------------------------------------------------------------- #
 # The review interaction
 # --------------------------------------------------------------------------- #
-def run_review(
-    client: genai.Client,
+def build_environment(
     clone_url: str,
+    skill_name: str,
+    skill_text: str,
+    gh_token: str,
+    private: bool,
+    enable_gh: bool,
+) -> dict[str, Any]:
+    """Fresh sandbox config: repo + skill (+ gh shim) mounted, scoped egress.
+
+    Auth headers ride in the network allowlist `transform`s (a LIST of
+    {header: value} dicts on google-genai >= 2.10.0): the egress proxy injects
+    them outside the sandbox, so the token never enters the VM.
+    """
+    github_entry: dict[str, Any] = {"domain": "github.com"}
+    if private or enable_gh:
+        # Basic auth authenticates the repository-source clone/fetch (private
+        # repos) and gh's git operations.
+        github_entry["transform"] = [
+            {"Authorization": build_basic_auth_header(gh_token)}
+        ]
+
+    allowlist: list[dict[str, Any]] = [github_entry]
+    sources: list[dict[str, Any]] = [
+        {"type": "repository", "source": clone_url, "target": REPO_MOUNT},
+        # The review skill is mounted (.agents/skills/ is auto-registered by
+        # the runtime); the same text rides in the system_instruction so the
+        # rubric applies unconditionally.
+        {
+            "type": "inline",
+            "target": f".agents/skills/{skill_name}/SKILL.md",
+            "content": skill_text,
+        },
+    ]
+
+    if enable_gh:
+        allowlist.append(
+            {
+                "domain": "api.github.com",
+                "transform": [{"Authorization": f"Bearer {gh_token}"}],
+            }
+        )
+        # gh release tarball downloads redirect to the GitHub assets CDN.
+        allowlist.append({"domain": "*.githubusercontent.com"})
+        sources.append(
+            {
+                "type": "inline",
+                "target": "bin/gh",
+                "content": SHIM_SOURCE.read_text(encoding="utf-8"),
+            }
+        )
+
+    return {
+        "type": "remote",
+        "sources": sources,
+        "network": {"allowlist": allowlist},
+    }
+
+
+def build_prompt(
+    repo: str,
     pr_number: int,
     pr_title: str,
     base_branch: str,
     head_branch: str,
+    head_sha: str,
     diff_prompt: str,
-    skill_name: str,
-    skill_text: str,
-    git_auth_header: str | None = None,
-) -> dict[str, Any]:
-    # The repo is mounted at provision time via the GitHub-native `repository`
-    # source (default branch). The agent only runs a cheap fetch/checkout of
-    # refs/pull/<N>/head to reach the exact PR state — no full in-sandbox clone.
-    # For private repos, auth is injected by the egress proxy via the
-    # github.com allowlist `transform` (a LIST of {header: value} dicts on
-    # google-genai >= 2.10.0); credentials never enter the sandbox.
-    github_entry: dict[str, Any] = {"domain": "github.com"}
-    if git_auth_header:
-        github_entry["transform"] = [{"Authorization": git_auth_header}]
-
-    environment = {
-        "type": "remote",
-        "sources": [
-            {"type": "repository", "source": clone_url, "target": REPO_MOUNT},
-            # The review skill is also mounted into the sandbox as an inline
-            # source (.agents/skills/ is auto-registered by the runtime); the
-            # same text rides in the system_instruction below so the rubric is
-            # applied unconditionally.
-            {
-                "type": "inline",
-                "target": f".agents/skills/{skill_name}/SKILL.md",
-                "content": skill_text,
-            },
-        ],
-        "network": {"allowlist": [github_entry]},
-    }
-
-    prompt = (
-        f"You are reviewing GitHub pull request #{pr_number} (\"{pr_title}\"), "
-        f"targeting branch '{base_branch}' from '{head_branch}'.\n\n"
-        f"The repository is already mounted at {REPO_MOUNT} (default branch). "
-        f"Bring it to the exact PR state by running:\n"
+    enable_gh: bool,
+    follow_up: bool,
+) -> str:
+    parts = [
+        f"You are reviewing GitHub pull request #{pr_number} of {repo} "
+        f"(\"{pr_title}\"), targeting branch '{base_branch}' from "
+        f"'{head_branch}'.\n"
+    ]
+    if follow_up:
+        parts.append(
+            f"You reviewed an earlier version of this pull request; your "
+            f"previous findings are in the conversation history. New commits "
+            f"may have been pushed since (current head: {head_sha}). After "
+            f"checking out the current PR state, focus on what changed since "
+            f"your last review: state in the summary which of your previous "
+            f"findings are fixed and which remain open, and raise new findings "
+            f"only for issues visible in the current diff.\n"
+        )
+    parts.append(
+        f"The repository is mounted at {REPO_MOUNT}. Bring it to the exact PR "
+        f"state by running:\n"
         f"   git -C {REPO_MOUNT} fetch origin pull/{pr_number}/head\n"
         f"   git -C {REPO_MOUNT} checkout --detach FETCH_HEAD\n"
         f"(Authentication, if needed, is injected automatically; never add "
-        f"credentials.)\n\n"
+        f"credentials.)\n"
+    )
+    if enable_gh:
+        parts.append(
+            f"An authenticated GitHub CLI is available through the wrapper at "
+            f"{GH_WRAPPER} (run it as: bash {GH_WRAPPER} <args>). Use it "
+            f"READ-ONLY when extra context helps the review: linked issues, "
+            f"earlier review comments, CI check status (for example: bash "
+            f"{GH_WRAPPER} pr view {pr_number} --repo {repo} --comments). Do "
+            f"not post comments, approve, or modify anything with it; the "
+            f"workflow posts the review.\n"
+        )
+    parts.append(
         f"The unified diff of the pull request is below. Review THESE changes. "
         f"Use the mounted repository to read the surrounding code the changes "
         f"touch or depend on, and any spec/README/docs describing intended "
@@ -176,16 +268,67 @@ def run_review(
         f"and line that appear in the diff):\n\n"
         f"{json.dumps(FINDINGS_SCHEMA)}"
     )
+    return "\n".join(parts)
 
+
+def run_review(
+    client: genai.Client,
+    environment: dict[str, Any],
+    prompt: str,
+    skill_text: str,
+    prior_state: dict[str, Any] | None,
+    private: bool,
+) -> tuple[dict[str, Any], str | None, str | None, str]:
+    """Run the review with a resume cascade.
+
+    Attempts, in order:
+      1. Reuse the previous sandbox AND conversation (public repos only: a
+         reused environment carries the previous job's expired token in its
+         auth transform, so private repos skip this).
+      2. Fresh sandbox, resumed conversation (previous_interaction_id).
+      3. Fresh sandbox, cold start.
+
+    Returns (findings, environment_id, interaction_id, mode).
+    """
     system_instruction = f"{SYSTEM_INSTRUCTION}\n\n# Review skill\n\n{skill_text}"
 
-    interaction = client.interactions.create(
-        agent=BASE_AGENT,
-        system_instruction=system_instruction,
-        input=prompt,
-        environment=environment,
-    )
-    return _parse_json(_extract_text(interaction))
+    attempts: list[tuple[str, dict[str, Any] | str, str | None]] = []
+    if prior_state:
+        if not private and prior_state.get("environment_id"):
+            attempts.append(
+                ("resumed sandbox + conversation",
+                 prior_state["environment_id"], prior_state["interaction_id"])
+            )
+        attempts.append(
+            ("fresh sandbox + resumed conversation",
+             environment, prior_state["interaction_id"])
+        )
+    attempts.append(("cold start", environment, None))
+
+    last_exc: Exception | None = None
+    for mode, env, prev_id in attempts:
+        try:
+            kwargs: dict[str, Any] = {}
+            if prev_id:
+                kwargs["previous_interaction_id"] = prev_id
+            interaction = client.interactions.create(
+                agent=BASE_AGENT,
+                system_instruction=system_instruction,
+                input=prompt,
+                environment=env,
+                **kwargs,
+            )
+            result = _parse_json(_extract_text(interaction))
+            return (
+                result,
+                getattr(interaction, "environment_id", None),
+                getattr(interaction, "id", None),
+                mode,
+            )
+        except Exception as exc:
+            last_exc = exc
+            print(f"⚠️  attempt '{mode}' failed: {exc}", file=sys.stderr)
+    raise last_exc  # every attempt failed
 
 
 # --------------------------------------------------------------------------- #
@@ -197,6 +340,7 @@ def post_results(
     head_sha: str,
     skill_title: str,
     result: dict[str, Any],
+    state_marker: str = "",
 ) -> None:
     findings = sorted(
         result.get("findings", []),
@@ -220,7 +364,8 @@ def post_results(
         f"{result.get('summary', '(no summary)')}\n\n"
         f"**Findings:** {counts_line}\n\n"
         f"<sub>🤖 Reviewed by a Gemini managed agent · advisory, verify before "
-        f"relying on it.</sub>",
+        f"relying on it.</sub>\n"
+        f"{state_marker}",
     )
 
     overflow: list[str] = []
@@ -278,6 +423,8 @@ def main() -> int:
     server_url = os.environ.get("GITHUB_SERVER_URL", "https://github.com")
     skill_name = os.environ.get("REVIEW_SKILL", "security-review")
     dry_run = os.environ.get("DRY_RUN", "0") == "1"
+    persist = os.environ.get("PERSIST", "1") == "1"
+    enable_gh = os.environ.get("AGENT_GH", "1") == "1"
 
     pr_number = resolve_pr_number()
     skill_title, skill_text = load_skill(skill_name)
@@ -289,31 +436,61 @@ def main() -> int:
     diff_prompt = build_diff_prompt(files)
     private = bool(gh.get_repo().get("private"))
 
+    prior_state = None
+    if persist and not dry_run:
+        prior_state = find_state(gh, pr_number, skill_name)
+        if prior_state:
+            print(f"Found previous review state (head {prior_state.get('head_sha', '?')[:7]}) — running as a follow-up.")
+
+    environment = build_environment(
+        clone_url=f"{server_url}/{repo}.git",
+        skill_name=skill_name,
+        skill_text=skill_text,
+        gh_token=gh_token,
+        private=private,
+        enable_gh=enable_gh,
+    )
+    prompt = build_prompt(
+        repo=repo,
+        pr_number=pr_number,
+        pr_title=pr.get("title", ""),
+        base_branch=pr["base"]["ref"],
+        head_branch=pr["head"]["ref"],
+        head_sha=pr["head"]["sha"],
+        diff_prompt=diff_prompt,
+        enable_gh=enable_gh,
+        follow_up=bool(prior_state),
+    )
+
     print(
         f"Reviewing PR #{pr_number} ({pr['head']['ref']} → {pr['base']['ref']}) "
         f"with skill '{skill_name}' ({len(files)} changed file(s), "
         f"{'private' if private else 'public'} repo) …"
     )
     client = genai.Client()
-    result = run_review(
-        client,
-        clone_url=f"{server_url}/{repo}.git",
-        pr_number=pr_number,
-        pr_title=pr.get("title", ""),
-        base_branch=pr["base"]["ref"],
-        head_branch=pr["head"]["ref"],
-        diff_prompt=diff_prompt,
-        skill_name=skill_name,
-        skill_text=skill_text,
-        git_auth_header=build_basic_auth_header(gh_token) if private else None,
+    result, env_id, int_id, mode = run_review(
+        client, environment, prompt, skill_text, prior_state, private
     )
+    print(f"Review completed ({mode}).")
 
     if dry_run:
         print(json.dumps(result, indent=2))
         return 0
 
+    state_marker = ""
+    if persist and int_id:
+        state_marker = build_state_marker(
+            {
+                "v": 1,
+                "skill": skill_name,
+                "interaction_id": int_id,
+                "environment_id": env_id,
+                "head_sha": pr["head"]["sha"],
+            }
+        )
+
     print("Posting results …")
-    post_results(gh, pr_number, pr["head"]["sha"], skill_title, result)
+    post_results(gh, pr_number, pr["head"]["sha"], skill_title, result, state_marker)
     return 0
 
 

@@ -36,9 +36,16 @@ semantics, and rules) and set `REVIEW_SKILL: my-review`.
    to the exact PR state: two git commands on an already-present working tree.
 4. The prompt carries the PR diff; the mounted repository provides the
    surrounding code, specs, and docs the agent reads for context.
-5. The agent returns findings as JSON matching the schema in `schema.py`; the
+5. The agent gets an authenticated GitHub CLI through a shim wrapper mounted
+   at `/workspace/bin/gh`, for read-only context gathering (linked issues,
+   earlier review comments, CI check status). See "GitHub CLI inside the
+   sandbox" below.
+6. The agent returns findings as JSON matching the schema in `schema.py`; the
    script posts a summary comment and one line-anchored review comment per
    finding.
+7. The summary comment carries a hidden state marker. The next run on the same
+   PR reads it and resumes the conversation, so follow-up reviews remember the
+   previous round. See "Follow-up reviews" below.
 
 ## Repository access and credentials
 
@@ -56,6 +63,52 @@ semantics, and rules) and set `REVIEW_SKILL: my-review`.
 - `transform` is a **list** of `{header: value}` objects. `google-genai >=
   2.10.0` types it this way and rejects a single dict client-side.
 
+## Follow-up reviews
+
+Reviews of the same PR build on each other. After posting, the tool appends a
+hidden HTML marker to the summary comment with the interaction id, the
+environment id, and the head SHA. The next run for the same PR and skill finds
+the marker and resumes:
+
+1. **Reused sandbox and conversation** (public repos): the previous
+   environment id and `previous_interaction_id` are passed together, so the
+   installed gh CLI and the cloned repo carry over.
+2. **Fresh sandbox, resumed conversation**: a new environment with
+   `previous_interaction_id`. This is the path for private repos, because a
+   reused environment carries the previous job's expired token in its auth
+   transform. It is also the fallback when the old sandbox is gone (sandboxes
+   pause after 15 minutes idle and expire after 7 days).
+3. **Cold start**: the fallback when the previous interaction is unavailable.
+
+On a follow-up, the prompt tells the agent to report which previous findings
+are fixed and which remain open, and to raise new findings only for the
+current diff. Set `PERSIST=0` to run every review stateless.
+
+## GitHub CLI inside the sandbox
+
+The agent can consult GitHub for context beyond the code: linked issues,
+earlier review comments, CI check status. It does this through a shim wrapper
+(`bin/gh-shim.sh`, mounted at `/workspace/bin/gh`) that follows the token
+injection pattern from
+[Philipp Schmid's GitHub agent guide](https://www.philschmid.de/managed-agents-gh):
+
+- The shim installs the gh CLI on first use (cached in the sandbox for
+  environment reuse) and exports a **dummy** `GH_TOKEN` that satisfies the
+  CLI's local auth check.
+- The egress proxy injects the real job token at the network layer: `Bearer`
+  on `api.github.com`, `Basic` on `github.com`. The token value never enters
+  the sandbox.
+- The prompt restricts usage to read-only context gathering; posting stays in
+  the runner. Set `AGENT_GH=0` to remove the CLI and the `api.github.com`
+  allowlist entry entirely.
+
+**Capability note**: with the CLI enabled, code running in the sandbox can
+call the GitHub API with the job token's permissions (the workflow grants
+`contents: read` and `pull-requests: write`) for the duration of the job. The
+token expires when the job ends. If you review PRs from untrusted
+contributors, weigh this against the value of the extra context and set
+`AGENT_GH=0` where it matters.
+
 ## Files
 
 | File | Purpose |
@@ -65,6 +118,7 @@ semantics, and rules) and set `REVIEW_SKILL: my-review`.
 | `schema.py` | Base instruction shared by all review types + JSON findings contract |
 | `skills/security-review/SKILL.md` | Security rubric (default) |
 | `skills/code-quality-review/SKILL.md` | Maintainability rubric |
+| `bin/gh-shim.sh` | GitHub CLI wrapper mounted into the sandbox |
 | `pr-review.yml` | The Actions workflow, to copy into `.github/workflows/` |
 | `requirements.txt` | `google-genai>=2.10.0`, `requests` |
 
