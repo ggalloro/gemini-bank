@@ -1,8 +1,38 @@
-<html>
-    {% extends "base.html" %}
-    {% block content%}
-    <head>
-        <title>Welcome to My Bank</title>
-    </head>
-    {% endblock %}
-</html>
+{% extends "base.html" %}
+{% block title %}Welcome to Gemini Bank{% endblock %}
+
+{% block content %}
+<div class="row align-items-center py-5">
+    <div class="col-lg-6 mb-5 mb-lg-0">
+        <h1 class="display-4 fw-bold text-dark mb-3">Welcome to <span class="text-primary">Gemini Bank</span></h1>
+        <p class="lead text-muted mb-4" style="line-height: 1.7;">A simple, secure, and modern local banking platform. Manage your accounts, perform instant deposits, and send payments seamlessly across the network with full transaction tracking.</p>
+        <div class="d-flex flex-wrap gap-3">
+            {% if user and user != "anonymous" %}
+                <a href="{{ url_for('mybank') }}" class="btn btn-primary btn-lg shadow-sm px-4 py-3"><i class="bi bi-wallet2 me-2"></i>Go to Dashboard</a>
+            {% else %}
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg shadow-sm px-4 py-3"><i class="bi bi-person-plus me-2"></i>Open an Account</a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-secondary btn-lg px-4 py-3"><i class="bi bi-box-arrow-in-right me-2"></i>Access Portal</a>
+            {% endif %}
+        </div>
+        <div class="row mt-5 pt-3 border-top">
+            <div class="col-4">
+                <h4 class="fw-bold text-primary mb-0">100%</h4>
+                <small class="text-muted fw-medium">Secure Ledger</small>
+            </div>
+            <div class="col-4">
+                <h4 class="fw-bold text-primary mb-0">Instant</h4>
+                <small class="text-muted fw-medium">Deposits</small>
+            </div>
+            <div class="col-4">
+                <h4 class="fw-bold text-primary mb-0">Symmetrical</h4>
+                <small class="text-muted fw-medium">Audits</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card card-custom overflow-hidden shadow-lg p-0">
+            <img src="{{ url_for('static', filename='img/hero.png') }}" alt="Gemini Bank Hero Image" class="img-fluid w-100" style="object-fit: cover; max-height: 480px; min-height: 380px;">
+        </div>
+    </div>
+</div>
+{% endblock %}

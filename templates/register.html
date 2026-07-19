@@ -1,25 +1,69 @@
-<html>
-    {% extends "base.html" %}
-    {% block content%}
-    <head>
-        <title>Register new user</title>
-    </head>
-    <body>
-        <h1 class="pagetitle">Register new user</h1>
-        <form method="POST">
-            {{ form.hidden_tag() }}
-            {{ form.firstname.label }}
-            {{ form.firstname(size=20) }}<br><br>
-            {{ form.lastname.label }}
-            {{ form.lastname(size=20) }}<br><br>
-            {{ form.email.label }}
-            {{ form.email(size=20) }}<br><br>
-            {{ form.password1.label }}
-            {{ form.password1(size=20) }}<br><br>
-            {{ form.password2.label }}
-            {{ form.password2(size=20) }}<br><br>
-            {{ form.submit() }}
-        </form>
-    </body>
-    {% endblock %}
-</html>
+{% extends "base.html" %}
+{% block title %}Register - Gemini Bank{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+    <div class="col-md-6 col-lg-5">
+        <div class="card card-custom shadow p-4 bg-white">
+            <div class="text-center mb-4">
+                <div class="d-inline-flex p-3 rounded-circle bg-primary-subtle text-primary mb-3">
+                    <i class="bi bi-person-plus-fill fs-3"></i>
+                </div>
+                <h2 class="fw-bold text-dark">Create Account</h2>
+                <p class="text-muted small">Join Gemini Bank and start transactions today</p>
+            </div>
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                
+                <div class="row mb-3">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        {{ form.firstname.label(class="form-label fw-bold small text-muted") }}
+                        {{ form.firstname(class="form-control", placeholder="First name") }}
+                        {% if form.firstname.errors %}
+                            <div class="text-danger small mt-1">{{ form.firstname.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.lastname.label(class="form-label fw-bold small text-muted") }}
+                        {{ form.lastname(class="form-control", placeholder="Last name") }}
+                        {% if form.lastname.errors %}
+                            <div class="text-danger small mt-1">{{ form.lastname.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    {{ form.email.label(class="form-label fw-bold small text-muted") }}
+                    {{ form.email(class="form-control", placeholder="name@example.com") }}
+                    {% if form.email.errors %}
+                        <div class="text-danger small mt-1">{{ form.email.errors[0] }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.password1.label(class="form-label fw-bold small text-muted") }}
+                    {{ form.password1(type="password", class="form-control", placeholder="Enter secure password") }}
+                    {% if form.password1.errors %}
+                        <div class="text-danger small mt-1">{{ form.password1.errors[0] }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    {{ form.password2.label(class="form-label fw-bold small text-muted") }}
+                    {{ form.password2(type="password", class="form-control", placeholder="Retype secure password") }}
+                    {% if form.password2.errors %}
+                        <div class="text-danger small mt-1">{{ form.password2.errors[0] }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="d-grid gap-2">
+                    {{ form.submit(class="btn btn-primary py-2.5 fw-semibold shadow-sm") }}
+                </div>
+            </form>
+            <div class="text-center mt-4 border-top pt-3">
+                <span class="text-muted small">Already have an account? <a href="{{ url_for('login') }}" class="text-primary fw-bold text-decoration-none">Login</a></span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

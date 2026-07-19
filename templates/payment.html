@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Send Payment - Gemini Bank{% endblock %}
+
+{% block content %}
+<div class="py-2">
+    <div class="mb-4">
+        <a href="{{ url_for('account', id=account.id) }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Back to Account</a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+            <div class="card card-custom shadow-sm border p-4 bg-white">
+                <div class="text-center mb-4">
+                    <div class="d-inline-flex p-3 rounded-circle bg-primary-subtle text-primary mb-3">
+                        <i class="bi bi-send-fill fs-3"></i>
+                    </div>
+                    <h2 class="fw-bold text-dark mb-1">Send Payment</h2>
+                    <p class="text-muted small mb-0">From Account **** {{ account.number }}</p>
+                    <span class="badge bg-light text-dark border mt-3 px-3 py-2 fw-semibold fs-6">Available Balance: {{ "{:,.2f}".format(account.balance) }} EUR</span>
+                </div>
+                
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.recipient_type.label(class="form-label fw-bold small text-muted") }}
+                        {{ form.recipient_type(id="recipient_type", class="form-select form-select-lg") }}
+                    </div>
+
+                    <!-- Internal Recipient Account Dropdown -->
+                    <div id="internal_recipient_section" class="mb-3">
+                        {{ form.internal_account.label(class="form-label fw-bold small text-muted") }}
+                        {{ form.internal_account(class="form-select") }}
+                        {% if form.internal_account.errors %}
+                            <div class="text-danger small mt-1">{{ form.internal_account.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- External Recipient Text Input -->
+                    <div id="external_recipient_section" class="mb-3" style="display: none;">
+                        {{ form.external_account.label(class="form-label fw-bold small text-muted") }}
+                        {{ form.external_account(class="form-control", placeholder="Enter external recipient details or IBAN") }}
+                        {% if form.external_account.errors %}
+                            <div class="text-danger small mt-1">{{ form.external_account.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.amount.label(class="form-label fw-bold small text-muted") }}
+                        <div class="input-group">
+                            <span class="input-group-text bg-light fw-bold text-secondary">EUR</span>
+                            {{ form.amount(class="form-control form-control-lg", placeholder="0.00") }}
+                        </div>
+                        {% if form.amount.errors %}
+                            <div class="text-danger small mt-1">{{ form.amount.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form.description.label(class="form-label fw-bold small text-muted") }}
+                        {{ form.description(class="form-control", rows="3", placeholder="Enter payment description / reference") }}
+                        {% if form.description.errors %}
+                            <div class="text-danger small mt-1">{{ form.description.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary btn-lg fw-semibold shadow-sm py-2.5") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const recipientTypeSelect = document.getElementById("recipient_type");
+        const internalSection = document.getElementById("internal_recipient_section");
+        const externalSection = document.getElementById("external_recipient_section");
+
+        function toggleSections() {
+            if (recipientTypeSelect.value === "internal") {
+                internalSection.style.display = "block";
+                externalSection.style.display = "none";
+            } else {
+                internalSection.style.display = "none";
+                externalSection.style.display = "block";
+            }
+        }
+
+        recipientTypeSelect.addEventListener("change", toggleSections);
+        toggleSections();
+    });
+</script>
+{% endblock %}

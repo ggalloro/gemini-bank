@@ -1,24 +1,95 @@
-<html>
-    {% extends "base.html" %}
-    {% block content %}
-    <head>
-        <title>Welcome to My Bank</title>
-    </head>
-    <body>
-        <h1 class="pagetitle">{{ user }} main page</h1>
-        {% if accounts %}
-        <h2>Your bank accounts</h2>
-          {% for account in accounts %}
-          <ul>
-            <li><a href="{{url_for('account', id=account.id)}}">Account {{ account.number }}</a></li>
-          </ul>
-          {% endfor %}
-        {% else %}
-          <form method="POST">
-            {{ form.hidden_tag() }}
-            {{ form.submit() }}
-          </form>
-        {% endif %}
-    </body>
-    {% endblock %}
-</html>
+{% extends "base.html" %}
+{% block title %}Dashboard - Gemini Bank{% endblock %}
+
+{% block content %}
+<div class="py-2">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-5 gap-3">
+        <div>
+            <h1 class="h2 fw-bold text-dark mb-1">Welcome, {{ user.firstname }}!</h1>
+            <p class="text-muted mb-0">Manage your active accounts and transactions seamlessly.</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Accounts Section -->
+        <div class="col-lg-8">
+            <div class="card card-custom p-4 bg-white shadow-sm border">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold mb-0 text-dark"><i class="bi bi-credit-card-2-front-fill me-2 text-primary"></i>Your Bank Accounts</h4>
+                </div>
+                
+                {% if accounts %}
+                    <div class="row g-4">
+                        {% for account in accounts %}
+                            <div class="col-md-6">
+                                <div class="card shadow-sm border-0 text-white rounded-3 position-relative overflow-hidden" style="background: linear-gradient(135deg, #101c33 0%, #1c355e 100%); min-height: 180px;">
+                                    <div class="card-body d-flex flex-column justify-content-between p-4">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <small class="text-light text-uppercase opacity-75 small fw-semibold tracking-wider">Account Number</small>
+                                                <h5 class="fw-bold tracking-widest mt-1 mb-0">**** {{ account.number }}</h5>
+                                            </div>
+                                            <div class="p-2 bg-white bg-opacity-10 rounded">
+                                                <i class="bi bi-bank fs-4 text-light"></i>
+                                            </div>
+                                        </div>
+                                        <div class="mt-4">
+                                            <small class="text-light text-uppercase opacity-75 small fw-semibold tracking-wider d-block mb-1">Available Balance</small>
+                                            <h3 class="fw-bold mb-0 text-white">{{ "{:,.2f}".format(account.balance) }} EUR</h3>
+                                        </div>
+                                        <a href="{{ url_for('account', id=account.id) }}" class="stretched-link"></a>
+                                    </div>
+                                    <!-- Decorative background circle -->
+                                    <div class="position-absolute opacity-10 bg-white rounded-circle" style="width: 140px; height: 140px; right: -40px; bottom: -40px;"></div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <div class="d-inline-flex p-3 rounded-circle bg-light-warning text-warning mb-3">
+                            <i class="bi bi-credit-card-fill fs-1"></i>
+                        </div>
+                        <h5 class="fw-bold">No accounts found</h5>
+                        <p class="text-muted mt-2 mb-4">Please create a bank account to start managing your cash ledger.</p>
+                        <form method="POST">
+                            {{ form.hidden_tag() }}
+                            {{ form.submit(class="btn btn-primary px-4 py-2 fw-semibold shadow-sm") }}
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Sidebar Actions -->
+        <div class="col-lg-4">
+            <div class="card card-custom p-4 bg-white border shadow-sm h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-shield-check-fill text-success me-2"></i>Security Verified</h5>
+                    <p class="small text-muted mb-4">Your connection is locally encrypted and fully authenticated. All transactions are securely audited and symmetrical.</p>
+                </div>
+                
+                <div class="mt-auto">
+                    {% if accounts %}
+                        <div class="p-3 bg-success-subtle text-success border border-success-subtle rounded d-flex align-items-start" role="alert">
+                            <i class="bi bi-check-circle-fill fs-5 me-2 mt-0.5"></i>
+                            <div>
+                                <strong class="d-block mb-1">Active Accounts</strong>
+                                <span class="small text-secondary">Your bank accounts are active. Select one to deposit cash or transfer money.</span>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="p-3 bg-warning-subtle text-warning border border-warning-subtle rounded d-flex align-items-start" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill fs-5 me-2 mt-0.5"></i>
+                            <div>
+                                <strong class="d-block mb-1">Attention</strong>
+                                <span class="small text-secondary">A bank account is required to activate transaction menus. Click "Create Account" on the left.</span>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
