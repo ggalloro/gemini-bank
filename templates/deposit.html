@@ -1,0 +1,40 @@
+<html>
+    {% extends "base.html" %}
+    {% block content %}
+    <head>
+        <title>Deposit Funds</title>
+        <style>
+            .form-group {
+                margin-bottom: 15px;
+            }
+        </style>
+    </head>
+    <body>
+        <p>
+          <a href="{{url_for('account', id=account.id)}}">Back to Account</a>
+        </p>
+        <h1 class="pagetitle">Deposit to Account {{ account.number }}</h1>
+          <form method="POST">
+            {{ form.hidden_tag() }}
+            
+            <div class="form-group">
+              {{ form.amount.label }}<br>
+              {{ form.amount() }}
+              {% if form.amount.errors %}
+                <br><span style="color: red;">{{ form.amount.errors[0] }}</span>
+              {% endif %}
+            </div>
+            
+            <div class="form-group">
+              {{ form.description.label }}<br>
+              {{ form.description(rows=3, cols=40, placeholder="Provide a short note, e.g., Salary, ATM Deposit...") }}
+              {% if form.description.errors %}
+                <br><span style="color: red;">{{ form.description.errors[0] }}</span>
+              {% endif %}
+            </div>
+            
+            {{ form.submit(class="btn btn-deposit") }}            
+          </form>
+    </body>
+    {% endblock %}
+</html>

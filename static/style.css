@@ -50,6 +50,35 @@
     text-align:right
   }
 
+  .btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-deposit {
+    background-color: #2563eb;
+    color: white;
+  }
+
+  .btn-deposit:hover {
+    background-color: #1d4ed8;
+  }
+
+  .btn-payment {
+    background-color: #dc2626;
+    color: white;
+  }
+
+  .btn-payment:hover {
+    background-color: #b91c1c;
+  }
+
   .right {
     text-align:right
   }

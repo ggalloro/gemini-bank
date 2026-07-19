@@ -1,0 +1,90 @@
+<html>
+    {% extends "base.html" %}
+    {% block content %}
+    <head>
+        <title>Make Payment</title>
+        <style>
+            .form-group {
+                margin-bottom: 15px;
+            }
+            .hidden {
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <p>
+          <a href="{{url_for('account', id=account.id)}}">Back to Account</a>
+        </p>
+        <h1 class="pagetitle">Payment from Account {{ account.number }}</h1>
+        <p>Current Balance: <strong>{{ account.balance }} EUR</strong></p>
+        
+        <form method="POST" id="paymentForm">
+            {{ form.hidden_tag() }}
+            
+            <div class="form-group">
+                {{ form.amount.label }}<br>
+                {{ form.amount() }}
+                {% if form.amount.errors %}
+                    <br><span style="color: red;">{{ form.amount.errors[0] }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                {{ form.recipient_type.label }}<br>
+                {{ form.recipient_type() }}
+                {% if form.recipient_type.errors %}
+                    <br><span style="color: red;">{{ form.recipient_type.errors[0] }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-group" id="internalGroup">
+                {{ form.internal_recipient.label }}<br>
+                {{ form.internal_recipient() }}
+                {% if form.internal_recipient.errors %}
+                    <br><span style="color: red;">{{ form.internal_recipient.errors[0] }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-group" id="externalGroup">
+                {{ form.external_recipient.label }}<br>
+                {{ form.external_recipient(size=40, placeholder="e.g. John Doe / IBAN") }}
+                {% if form.external_recipient.errors %}
+                    <br><span style="color: red;">{{ form.external_recipient.errors[0] }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                {{ form.description.label }}<br>
+                {{ form.description(rows=3, cols=40, placeholder="Provide payment details...") }}
+                {% if form.description.errors %}
+                    <br><span style="color: red;">{{ form.description.errors[0] }}</span>
+                {% endif %}
+            </div>
+            
+            {{ form.submit(class="btn btn-payment") }}            
+        </form>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const recipientTypeSelect = document.getElementById("recipient_type");
+                const internalGroup = document.getElementById("internalGroup");
+                const externalGroup = document.getElementById("externalGroup");
+
+                function toggleFields() {
+                    if (recipientTypeSelect.value === "internal") {
+                        internalGroup.classList.remove("hidden");
+                        externalGroup.classList.add("hidden");
+                    } else {
+                        internalGroup.classList.add("hidden");
+                        externalGroup.classList.remove("hidden");
+                    }
+                }
+
+                recipientTypeSelect.addEventListener("change", toggleFields);
+                toggleFields(); // Initial execution on page load
+            });
+        </script>
+    </body>
+    {% endblock %}
+</html>
