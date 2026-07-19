@@ -46,13 +46,16 @@ FINDINGS_SCHEMA = {
                     "suggestion": {
                         "type": "string",
                         "description": (
-                            "OPTIONAL. Exact replacement code for the anchored "
-                            "line(s): complete lines, correct indentation, no "
-                            "diff markers. Include ONLY when the fix is a "
-                            "precise, self-contained replacement of those "
-                            "lines; GitHub renders it as a one-click 'Commit "
-                            "suggestion'. Omit when the fix needs changes "
-                            "beyond the anchored lines."
+                            "Exact replacement code for the anchored line(s): "
+                            "complete lines, correct indentation, no diff "
+                            "markers. GitHub renders it as a one-click 'Commit "
+                            "suggestion'. The replacement may span multiple "
+                            "output lines, and an INSERTION also qualifies: "
+                            "replace the anchored line with the new code plus "
+                            "the original line (e.g. a guard check above it). "
+                            "Include it for every finding whose complete fix "
+                            "fits at the anchored lines; omit it only when the "
+                            "fix spans multiple locations or files."
                         ),
                     },
                     "start_line": {

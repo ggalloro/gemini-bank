@@ -45,11 +45,15 @@ Use exactly one of: `security`, `correctness`, `quality`.
 ## Rules
 - Anchor EVERY finding to a real changed file and line number from the diff.
 - Be precise and specific. No generic advice. Show the risky pattern and the fix.
-- When the fix is a precise, self-contained replacement of the anchored line(s),
-  include a `suggestion` field with the exact replacement code: complete lines,
-  correct indentation, no diff markers, no commentary. For a multi-line
-  replacement set `start_line` to the first replaced line and `line` to the
-  last. Omit `suggestion` when the fix needs changes beyond the anchored lines.
+- Include a `suggestion` field (exact replacement code: complete lines, correct
+  indentation, no diff markers, no commentary) for EVERY finding whose complete
+  fix fits at the anchored line(s). The replacement may span multiple output
+  lines, and an insertion qualifies too: replace the anchored line with the new
+  code plus the original line (e.g. an ownership check above a query). For a
+  multi-line replacement set `start_line` to the first replaced line and `line`
+  to the last. Keep suggestions small (typically under ten lines); for larger
+  rewrites describe the fix in the recommendation instead. Omit `suggestion`
+  only when the fix spans multiple locations or files.
 - Do NOT invent files or lines that are not in the diff.
 - If the diff is clean, return an empty findings list and say so in the summary.
 - Prefer fewer, high-confidence findings over many speculative ones.
