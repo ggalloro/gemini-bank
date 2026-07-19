@@ -373,8 +373,10 @@ def post_results(
         body = render_finding_comment(f, SEVERITY_EMOJI.get(f.get("severity", "info"), ""))
         anchored = False
         try:
+            start_line = f.get("start_line")
             anchored = gh.post_review_comment(
-                pr_number, head_sha, f["file"], int(f["line"]), body
+                pr_number, head_sha, f["file"], int(f["line"]), body,
+                start_line=int(start_line) if start_line else None,
             )
         except Exception as exc:  # keep posting the rest
             print(f"⚠️  inline comment failed for {f.get('file')}:{f.get('line')}: {exc}",

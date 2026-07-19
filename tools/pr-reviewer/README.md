@@ -154,6 +154,13 @@ python review_pr.py   # prints the findings JSON, posts nothing
 - **Posting**: the summary lands as a conversation comment; each finding is
   posted as its own line-anchored review comment. Findings GitHub rejects with
   a 422 (line outside the diff) are grouped into one additional comment.
+- **One-click fixes**: when a finding's fix is an exact replacement of the
+  anchored line(s), the agent includes a `suggestion` field and the comment
+  carries a GitHub suggested change: the PR author applies it with the
+  **Commit suggestion** button. Multi-line replacements anchor a range via
+  `start_line`. The skills instruct the agent to include a suggestion only
+  when the full fix fits in the anchored lines, so the button always applies
+  a complete fix.
 - **Diff size**: the per-file diff in the prompt is capped at 20,000 characters
   (`build_diff_prompt`); files without a textual `patch` (binary or very large)
   are listed with a note. For truncated or patch-less files, the prompt

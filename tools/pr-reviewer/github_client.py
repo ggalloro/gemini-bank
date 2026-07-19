@@ -77,24 +77,33 @@ class GitHub:
         r.raise_for_status()
 
     def post_review_comment(
-        self, number: int, commit_id: str, path: str, line: int, body: str
+        self,
+        number: int,
+        commit_id: str,
+        path: str,
+        line: int,
+        body: str,
+        start_line: int | None = None,
     ) -> bool:
         """One line-anchored review comment on the PR diff.
 
-        Returns False (instead of raising) when GitHub rejects the anchor —
-        typically because the line isn't part of the diff — so the caller can
-        fall back to the summary thread.
+        `start_line` anchors a multi-line range (start_line .. line), which is
+        what a multi-line suggested change replaces. Returns False (instead of
+        raising) when GitHub rejects the anchor — typically because the line
+        isn't part of the diff — so the caller can fall back to the summary
+        thread.
         """
-        r = self.s.post(
-            self._url(f"/pulls/{number}/comments"),
-            json={
-                "commit_id": commit_id,
-                "path": path,
-                "line": line,
-                "side": "RIGHT",
-                "body": body,
-            },
-        )
+        payload: dict[str, Any] = {
+            "commit_id": commit_id,
+            "path": path,
+            "line": line,
+            "side": "RIGHT",
+            "body": body,
+        }
+        if start_line is not None and start_line < line:
+            payload["start_line"] = start_line
+            payload["start_side"] = "RIGHT"
+        r = self.s.post(self._url(f"/pulls/{number}/comments"), json=payload)
         if r.status_code == 422:
             return False
         r.raise_for_status()
@@ -134,14 +143,25 @@ def build_basic_auth_header(token: str, username: str = "x-access-token") -> str
 
 
 def render_finding_comment(f: dict[str, Any], emoji: str) -> str:
-    """Format one finding as a GitHub markdown comment body."""
-    return textwrap.dedent(
+    """Format one finding as a GitHub markdown comment body.
+
+    A `suggestion` field becomes a GitHub suggested change: the fenced
+    ```suggestion block renders with a "Commit suggestion" button that applies
+    the replacement to the PR branch in one click.
+    """
+    body = textwrap.dedent(
         f"""\
         {emoji} **[{f['severity'].upper()} · {f['category']}] {f['title']}**
 
         {f['detail']}
 
-        **Recommendation:** {f['recommendation']}
-
-        <sub>🤖 Automated review by a Gemini managed agent · advisory, verify before relying on it.</sub>"""
+        **Recommendation:** {f['recommendation']}"""
     )
+    suggestion = f.get("suggestion")
+    if suggestion:
+        body += f"\n\n```suggestion\n{suggestion.rstrip()}\n```"
+    body += (
+        "\n\n<sub>🤖 Automated review by a Gemini managed agent · advisory, "
+        "verify before relying on it.</sub>"
+    )
+    return body

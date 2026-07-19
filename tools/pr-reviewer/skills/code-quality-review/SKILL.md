@@ -53,6 +53,11 @@ Use exactly one of: `design`, `readability`, `tests`, `performance`, `consistenc
 - Anchor EVERY finding to a real changed file and line number from the diff.
 - Ground consistency claims in the actual codebase (read the neighboring code first).
 - Suggest the concrete better version, not just the objection.
+- When the fix is a precise, self-contained replacement of the anchored line(s),
+  include a `suggestion` field with the exact replacement code: complete lines,
+  correct indentation, no diff markers, no commentary. For a multi-line
+  replacement set `start_line` to the first replaced line and `line` to the
+  last. Omit `suggestion` when the fix needs changes beyond the anchored lines.
 - Do NOT invent files or lines that are not in the diff.
 - If the change is clean, return an empty findings list and say so in the summary.
 - Prefer fewer, high-confidence findings over many speculative ones.

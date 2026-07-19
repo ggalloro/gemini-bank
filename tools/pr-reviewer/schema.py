@@ -43,6 +43,26 @@ FINDINGS_SCHEMA = {
                     "title": {"type": "string"},
                     "detail": {"type": "string"},
                     "recommendation": {"type": "string"},
+                    "suggestion": {
+                        "type": "string",
+                        "description": (
+                            "OPTIONAL. Exact replacement code for the anchored "
+                            "line(s): complete lines, correct indentation, no "
+                            "diff markers. Include ONLY when the fix is a "
+                            "precise, self-contained replacement of those "
+                            "lines; GitHub renders it as a one-click 'Commit "
+                            "suggestion'. Omit when the fix needs changes "
+                            "beyond the anchored lines."
+                        ),
+                    },
+                    "start_line": {
+                        "type": "integer",
+                        "description": (
+                            "OPTIONAL, only with suggestion. First line of a "
+                            "multi-line replacement; `line` is then the LAST "
+                            "replaced line. Omit for single-line suggestions."
+                        ),
+                    },
                 },
                 "required": [
                     "file", "line", "severity", "category",
