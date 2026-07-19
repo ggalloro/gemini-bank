@@ -9,7 +9,11 @@
         <br>
         <p> Current balance: {{account.balance}} EUR</p>
         <br>
-        <p class="center"><a id="transaction" href="{{ url_for('transaction', id= account.id)}}">New Transaction</a></p>
+        <p class="center">
+            <a class="btn btn-deposit" href="{{ url_for('deposit', id=account.id) }}">Deposit Funds</a>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <a class="btn btn-payment" href="{{ url_for('payment', id=account.id) }}">Make Payment</a>
+        </p>
         <br>
         <h2>Account transactions</h2>
         <table>
