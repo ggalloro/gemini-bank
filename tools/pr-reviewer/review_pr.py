@@ -275,6 +275,41 @@ def build_prompt(
     return "\n".join(parts)
 
 
+def _is_connection_error(exc: Exception) -> bool:
+    s = f"{type(exc).__name__}: {exc}"
+    return any(
+        k in s
+        for k in (
+            "APIConnectionError", "RemoteProtocolError", "Server disconnected",
+            "ReadTimeout", "ConnectTimeout", "ConnectError", "ConnectionReset",
+            "IncompleteRead", "peer closed connection",
+        )
+    )
+
+
+def _run_streaming(client: genai.Client, **kwargs: Any) -> tuple[str, Any]:
+    """Create the interaction with stream=True and consume the events.
+
+    Long reviews over a plain synchronous call sit silent for minutes and get
+    killed by intermediate gateways ("Server disconnected without sending a
+    response"); streaming keeps data flowing on the connection. The final
+    answer is the concatenated model_output deltas (`delta.text`; thought
+    deltas use a different shape and are skipped), and the last event carrying
+    an `interaction` object provides the ids for the persistence marker.
+    """
+    chunks: list[str] = []
+    final: Any = None
+    for event in client.interactions.create(stream=True, **kwargs):
+        delta = getattr(event, "delta", None)
+        text = getattr(delta, "text", None) if delta is not None else None
+        if text:
+            chunks.append(text)
+        interaction = getattr(event, "interaction", None)
+        if interaction is not None:
+            final = interaction
+    return "".join(chunks), final
+
+
 def run_review(
     client: genai.Client,
     environment: dict[str, Any],
@@ -291,6 +326,10 @@ def run_review(
          auth transform, so private repos skip this).
       2. Fresh sandbox, resumed conversation (previous_interaction_id).
       3. Fresh sandbox, cold start.
+
+    Each attempt is retried once when it fails with a connection-level error
+    (dropped connection, timeout): those are transport hiccups, worth one more
+    try before falling back to the next mode.
 
     Returns (findings, environment_id, interaction_id, mode).
     """
@@ -311,27 +350,34 @@ def run_review(
 
     last_exc: Exception | None = None
     for mode, env, prev_id in attempts:
-        try:
-            kwargs: dict[str, Any] = {}
-            if prev_id:
-                kwargs["previous_interaction_id"] = prev_id
-            interaction = client.interactions.create(
-                agent=BASE_AGENT,
-                system_instruction=system_instruction,
-                input=prompt,
-                environment=env,
-                **kwargs,
-            )
-            result = _parse_json(_extract_text(interaction))
-            return (
-                result,
-                getattr(interaction, "environment_id", None),
-                getattr(interaction, "id", None),
-                mode,
-            )
-        except Exception as exc:
-            last_exc = exc
-            print(f"⚠️  attempt '{mode}' failed: {exc}", file=sys.stderr)
+        for attempt_try in (1, 2):
+            try:
+                kwargs: dict[str, Any] = {}
+                if prev_id:
+                    kwargs["previous_interaction_id"] = prev_id
+                text, interaction = _run_streaming(
+                    client,
+                    agent=BASE_AGENT,
+                    system_instruction=system_instruction,
+                    input=prompt,
+                    environment=env,
+                    **kwargs,
+                )
+                raw = text or _extract_text(interaction)
+                result = _parse_json(raw)
+                return (
+                    result,
+                    getattr(interaction, "environment_id", None),
+                    getattr(interaction, "id", None),
+                    mode,
+                )
+            except Exception as exc:
+                last_exc = exc
+                print(f"⚠️  attempt '{mode}' (try {attempt_try}) failed: {exc}",
+                      file=sys.stderr)
+                if attempt_try == 1 and _is_connection_error(exc):
+                    continue  # transport hiccup: one more try, same mode
+                break  # move on to the next mode
     raise last_exc  # every attempt failed
 
 
