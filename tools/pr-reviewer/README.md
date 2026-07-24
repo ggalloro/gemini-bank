@@ -169,6 +169,22 @@ python review_pr.py   # prints the findings JSON, posts nothing
 - **Model**: the `BASE_AGENT` env var selects the agent id (default
   `antigravity-preview-05-2026`).
 
+## Production authentication
+
+This reviewer authenticates to Gemini with an API key stored in the Actions
+secrets, which fits a demonstration. Managed Agents are also available on the
+[Google Cloud Agent Platform](https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/managed-agents),
+in preview at the time of writing. Once that version reaches general
+availability, the advice for production use is to run the reviewer against it
+and authenticate with
+[Workload Identity Federation](https://cloud.google.com/iam/docs/workload-identity-federation-with-deployment-pipelines):
+the Actions job exchanges its OIDC token for short-lived Google Cloud
+credentials through
+[google-github-actions/auth](https://github.com/google-github-actions/auth),
+the `google-genai` client targets the platform with `vertexai=True` (plus
+`GOOGLE_CLOUD_PROJECT`, `location="global"`), and the repository stores zero
+long-lived AI secrets.
+
 ## Caveats
 
 - Managed-agent reviews are advisory and non-deterministic. Treat findings as
